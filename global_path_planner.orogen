@@ -1,0 +1,27 @@
+name "global_path_planner"
+
+import_types_from "global_path_plannerTypes.hpp"
+
+using_library "global_path_planner"
+
+task_context "Task" do
+    needs_configuration
+
+    property("traversability_map_id", "std/string", "/traversability").
+        doc("Try to extract this map, otherwise the first trav map will be used.")
+
+    input_port('traversability_map', ro_ptr('std/vector</envire/BinaryEvent>')).
+        doc("Traversability map. Has to be received once before planning can be executed.")
+
+    input_port('start_pose_samples', 'base/samples/RigidBodyState').
+        doc("Start pose in the world, using x and y and yaw.")
+        
+    input_port('goal_pose_samples', 'base/samples/RigidBodyState').
+        doc("Goal pose in the world, using x and y and yaw.")
+
+    output_port("trajectory", "std::vector</base/Trajectory>").
+        doc("Trajectory.")
+
+    port_driven 'traversability_map', 'goal_pose_samples'
+end
+
