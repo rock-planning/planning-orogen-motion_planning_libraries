@@ -1,8 +1,11 @@
 name "global_path_planner"
 
-import_types_from "global_path_plannerTypes.hpp"
-
+using_library "envire"
 using_library "global_path_planner"
+
+import_types_from "base"
+import_types_from "envire"	
+import_types_from "global_path_plannerTypes.hpp"
 
 task_context "Task" do
     needs_configuration
@@ -21,8 +24,12 @@ task_context "Task" do
 
     output_port("trajectory", "std::vector</base/Trajectory>").
         doc("Trajectory.")
+        
+    output_port('debug_start_pose_samples', 'base/samples/RigidBodyState').
+        doc("Current start position")
+    output_port('debug_goal_pose_samples', 'base/samples/RigidBodyState').
+        doc("Current goal position")
 
     port_driven 'traversability_map', 'goal_pose_samples'
-
 end
 
