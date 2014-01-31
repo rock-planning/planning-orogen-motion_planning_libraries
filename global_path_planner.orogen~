@@ -27,9 +27,41 @@ task_context "Task" do
         
     output_port('debug_start_pose_samples', 'base/samples/RigidBodyState').
         doc("Current start position")
+        
     output_port('debug_goal_pose_samples', 'base/samples/RigidBodyState').
         doc("Current goal position")
 
     port_driven 'traversability_map', 'goal_pose_samples'
+end
+
+task_context "Test" do
+    needs_configuration
+    
+    property("traversability_map_type", 'global_path_planner/TRAV_MAP_MODE', 'RANDOM_CIRCLES').
+        doc("Type of trav map which should be created.")
+
+    property("traversability_map_id", "std/string", "/traversability").
+        doc("ID which will be assigned to the trav map.")
+
+    property("traversability_map_width_m", 'unsigned int', 30).
+        doc("Width of the traversability map in meter.")
+        
+    property("traversability_map_height_m", 'unsigned int', 30).
+        doc("Height of the traversability map in meter.")
+        
+    property("traversability_map_scalex", 'double', 0.1).
+        doc("Width of a cell in meter.")
+        
+    property("traversability_map_scaley", 'double', 0.1).
+        doc("Height of a cell in meter.")
+
+    output_port('traversability_map', ro_ptr('std/vector</envire/BinaryEvent>')).
+        doc("Traversability map. Has to be received once before planning can be executed.")
+
+    output_port('start_pose_samples', 'base/samples/RigidBodyState').
+        doc("Start pose in the world, using x and y and yaw.")
+        
+    output_port('goal_pose_samples', 'base/samples/RigidBodyState').
+        doc("Goal pose in the world, using x and y and yaw.")
 end
 

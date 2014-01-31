@@ -9,6 +9,12 @@
  */
 
 namespace global_path_planner {
+
+enum TRAV_MAP_MODE {
+    CLEAR,
+    RANDOM_CIRCLES
+};
+
 }
 
 #endif
