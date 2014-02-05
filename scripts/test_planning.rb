@@ -17,10 +17,10 @@ Orocos.run  'global_path_planner::Task' => 'planner',
             "valgrind" => false, 
             "wait" => 1000 do
            
-    #planner = TaskContext::get 'planner'
-    #planner.traversability_map_id = "trav"
-    #planner.configure
-    #planner.start
+    planner = TaskContext::get 'planner'
+    planner.traversability_map_id = "trav"
+    planner.configure
+    planner.start
    
     test = TaskContext::get 'test'
     test.traversability_map_id = 'trav'
@@ -32,9 +32,9 @@ Orocos.run  'global_path_planner::Task' => 'planner',
     test.configure
     test.start
         
-    #test.traversability_map.connect_to(planner.traversability_map)
-    #test.start_pose_samples.connect_to(planner.start_pose_samples) 
-    #test.goal_pose_samples.connect_to(planner.goal_pose_samples)     
+    test.traversability_map.connect_to(planner.traversability_map)
+    test.start_pose_samples.connect_to(planner.start_pose_samples) 
+    test.goal_pose_samples.connect_to(planner.goal_pose_samples)     
           
     t1 = Thread.new do
         while true do
@@ -43,12 +43,12 @@ Orocos.run  'global_path_planner::Task' => 'planner',
         end
     end
     
-    #Vizkit.display planner, :widget => task_inspector
+    Vizkit.display planner
     Vizkit.display test
     Vizkit.display test.port("traversability_map")
     Vizkit.display test.port("start_pose_samples"), :widget => Vizkit.default_loader.RigidBodyStateVisualization
     Vizkit.display test.port("goal_pose_samples"), :widget => Vizkit.default_loader.RigidBodyStateVisualization
-    #Vizkit.display planner.trajectory
+    Vizkit.display planner.trajectory
  
     Vizkit.exec
     

@@ -56,6 +56,7 @@ task_context "Test" do
         doc("Height of a cell in meter.")
 
     output_port('traversability_map', ro_ptr('std/vector</envire/BinaryEvent>')).
+        keep_last_written_value(true).
         doc("Traversability map. Has to be received once before planning can be executed.")
 
     output_port('start_pose_samples', 'base/samples/RigidBodyState').

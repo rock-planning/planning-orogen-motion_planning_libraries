@@ -69,9 +69,9 @@ void Task::updateHook()
         _debug_goal_pose_samples.write(goal_pose);
     }
     
-    if(!mpGlobalPathPlanner->plan(1)) {
+    if(!mpGlobalPathPlanner->plan(10)) {
         LOG_WARN("Planning could not be finished");
-    } else {
+    } else { 
         std::vector<base::Trajectory> vec_traj; 
         vec_traj.push_back(mpGlobalPathPlanner->getTrajectory(0.6));
         _trajectory.write(vec_traj);

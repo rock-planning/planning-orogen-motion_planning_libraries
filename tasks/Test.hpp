@@ -32,9 +32,10 @@ namespace global_path_planner {
 	friend class TestBase;
     protected:
 
-        envire::Environment mEnv;
+        envire::Environment* mpEnv;
         envire::FrameNode* mpFrameNode;
         envire::TraversabilityGrid* mpTravGrid;
+        base::samples::RigidBodyState mRBSTravGrid;
 
     public:
         /** TaskContext constructor for Test
@@ -113,7 +114,7 @@ namespace global_path_planner {
         void cleanupHook();
         
     private:
-        base::samples::RigidBodyState createRandomRBS(int max_width_m, int max_height_m);
+        base::samples::RigidBodyState createRandomGridPose(int max_width_m, int max_height_m);
         
         void createTraversabilityMap();
         

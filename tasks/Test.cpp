@@ -9,11 +9,14 @@
 #include <envire/operators/SimpleTraversability.hpp>
 #include <orocos/envire/Orocos.hpp>
 
+#include <global_path_planner/GlobalPathPlanner.hpp>
+
 using namespace global_path_planner;
 
 Test::Test(std::string const& name)
-    : TestBase(name), mpFrameNode(NULL), mpTravGrid(NULL)
+    : TestBase(name), mpEnv(NULL), mpFrameNode(NULL), mpTravGrid(NULL)
 {
+    srand (time(NULL));
 }
 
 Test::Test(std::string const& name, RTT::ExecutionEngine* engine)
@@ -47,18 +50,22 @@ void Test::updateHook()
 {
     TestBase::updateHook();
     
-    int width = _traversability_map_width_m.get();
-    int height = _traversability_map_height_m.get();
-    base::samples::RigidBodyState start = createRandomRBS(width, height);
-    _start_pose_samples.write(start);
-    
-    base::samples::RigidBodyState goal = createRandomRBS(width, height);
-    _goal_pose_samples.write(goal);
-    
     createTraversabilityMap();
-    envire::OrocosEmitter emitter_tmp(&mEnv, _traversability_map);
+    envire::OrocosEmitter emitter_tmp(mpEnv, _traversability_map);
     emitter_tmp.setTime(base::Time::now());
     emitter_tmp.flush();
+    
+    int width = _traversability_map_width_m.get() / _traversability_map_scalex.get();
+    int height = _traversability_map_height_m.get() / _traversability_map_scaley.get();
+
+    // Create random grid poses (start and goal) and transform them to the world.
+    base::samples::RigidBodyState start;
+    GlobalPathPlanner::grid2world(mpTravGrid, createRandomGridPose(width, height), start);
+    _start_pose_samples.write(start);
+    
+    base::samples::RigidBodyState goal;
+    GlobalPathPlanner::grid2world(mpTravGrid, createRandomGridPose(width, height), goal);
+    _goal_pose_samples.write(goal);
 }
 
 void Test::errorHook()
@@ -76,15 +83,19 @@ void Test::cleanupHook()
     TestBase::cleanupHook();
 }
 
-base::samples::RigidBodyState Test::createRandomRBS(int max_width_m, int max_height_m) {
+
+
+base::samples::RigidBodyState Test::createRandomGridPose(int max_width_m, int max_height_m) {
     base::samples::RigidBodyState rbs;
-    srand (time(NULL));
     
     rbs.position = base::Vector3d(rand() % max_width_m, rand() % max_height_m, 0);
     
     // Create an angle between 0 and 360 in radians.
-    double rot_radians = (((rand() % 360) / 360.0) / 180) * M_PI; 
+    double rot_radians = ((rand() % 360) / 180.0) * M_PI; 
+    std::cout << "Rotation " << rot_radians << std::endl;
     rbs.orientation = Eigen::AngleAxis<double>(rot_radians, base::Vector3d(0,0,1));
+    
+    rbs.time = base::Time::now();
     
     return rbs;
 }
@@ -92,26 +103,27 @@ base::samples::RigidBodyState Test::createRandomRBS(int max_width_m, int max_hei
 void Test::createTraversabilityMap() {
 
     LOG_INFO("Create traversability map");
-
-    if(mpTravGrid != NULL) {
-        mEnv.detachItem(mpTravGrid);
+    
+    // Using always the same environment leads to visualization-problems of 
+    // the map in Vizkit.
+    if(mpEnv != NULL) {
+        delete mpEnv;
     }
-    if(mpFrameNode != NULL) {
-        mEnv.detachItem(mpFrameNode);
-    }
+    mpEnv = new envire::Environment();
 
     envire::TraversabilityGrid* trav = new envire::TraversabilityGrid(
             (size_t)_traversability_map_width_m.get() / _traversability_map_scalex.get(), 
             (size_t)_traversability_map_height_m.get() / _traversability_map_scaley.get(), 
             _traversability_map_scalex.get(), 
             _traversability_map_scaley.get());
-    mEnv.attachItem(trav);
+    mpEnv->attachItem(trav);
     mpTravGrid = trav;
     
-    //Set a random pose of the traversability map.
-    base::samples::RigidBodyState rbs = createRandomRBS(10, 10);
-    envire::FrameNode* frame_node = new envire::FrameNode(/*rbs.getTransform()*/);
-    mEnv.getRootNode()->addChild(frame_node);
+    // Set a random pose of the traversability map (grid coordinates used as meters).
+    mRBSTravGrid = createRandomGridPose(10, 10);
+    LOG_INFO("Test: Map position (%4.2f, %4.2f)", mRBSTravGrid.position[0], mRBSTravGrid.position[1]);
+    envire::FrameNode* frame_node = new envire::FrameNode(mRBSTravGrid.getTransform());
+    mpEnv->getRootNode()->addChild(frame_node);
     trav->setFrameNode(frame_node);
     mpFrameNode = frame_node;
    
@@ -120,7 +132,7 @@ void Test::createTraversabilityMap() {
             break;
         }
         case RANDOM_CIRCLES: {
-            int num = rand() % 10 + 5;
+            static int num = rand() % 10 + 5;
             int center_x = 0, center_y = 0, radius = 0;
             int num_cells_x = _traversability_map_width_m.get() / 
                     _traversability_map_scalex.get();
@@ -144,7 +156,6 @@ void Test::createTraversabilityMap() {
 void Test::drawCircle(envire::TraversabilityGrid* trav, unsigned int center_x, 
         unsigned int center_y, int radius) {
         
-    LOG_INFO("Draw circle at (%d,%d) with radius %d", center_x, center_y, radius);
     envire::TraversabilityGrid::ArrayType& trav_array = trav->getGridData();
     int start_x = center_x - radius;
     int end_x = center_x + radius;
@@ -162,7 +173,7 @@ void Test::drawCircle(envire::TraversabilityGrid* trav, unsigned int center_x,
         
     for(int x=start_x; x < end_x; ++x) {
         for(int y=start_y; y < end_y; ++y) {
-            if(dist(x,center_x,y,center_y) < radius) {
+            if(dist(x,y,center_x,center_y) < radius) {
                 trav_array[y][x] = envire::SimpleTraversability::CLASS_OBSTACLE;
             }
         }
@@ -170,5 +181,6 @@ void Test::drawCircle(envire::TraversabilityGrid* trav, unsigned int center_x,
 }
 
 double Test::dist(int x1, int y1, int x2, int y2) {
-    return sqrt((x1 - x2)*(x1 - x2) + (y1 - y2)*(y1 - y2));
+    double dist = sqrt((x1 - x2)*(x1 - x2) + (y1 - y2)*(y1 - y2));
+    return dist;
 }
