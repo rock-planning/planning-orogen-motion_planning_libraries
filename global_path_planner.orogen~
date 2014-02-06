@@ -22,8 +22,11 @@ task_context "Task" do
     input_port('goal_pose_samples', 'base/samples/RigidBodyState').
         doc("Goal pose in the world, using x and y and yaw.")
 
+    output_port('path', '/std/vector<base::Waypoint>').
+        doc "Single waypoints."
+
     output_port("trajectory", "std::vector</base/Trajectory>").
-        doc("Trajectory.")
+        doc("Spline format.")
         
     output_port('debug_start_pose_samples', 'base/samples/RigidBodyState').
         doc("Current start position")
@@ -31,7 +34,8 @@ task_context "Task" do
     output_port('debug_goal_pose_samples', 'base/samples/RigidBodyState').
         doc("Current goal position")
 
-    port_driven 'traversability_map', 'goal_pose_samples'
+    #port_driven 'traversability_map', 'goal_pose_samples'
+    periodic 1.0
 end
 
 task_context "Test" do
@@ -52,11 +56,13 @@ task_context "Test" do
     property("traversability_map_scalex", 'double', 0.1).
         doc("Width of a cell in meter.")
         
+    property("number_of_random_circles", 'int', 10).
+        doc("Width of a cell in meter.")
+        
     property("traversability_map_scaley", 'double', 0.1).
         doc("Height of a cell in meter.")
 
     output_port('traversability_map', ro_ptr('std/vector</envire/BinaryEvent>')).
-        keep_last_written_value(true).
         doc("Traversability map. Has to be received once before planning can be executed.")
 
     output_port('start_pose_samples', 'base/samples/RigidBodyState').

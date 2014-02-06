@@ -5,9 +5,9 @@
 
 #include "global_path_planner/TestBase.hpp"
 
-#include <envire/core/Environment.hpp>
-
 namespace envire {
+    class Environment;
+    class FrameNode;
     class TraversabilityGrid;
 }
 

@@ -29,6 +29,7 @@ Orocos.run  'global_path_planner::Task' => 'planner',
     test.traversability_map_height_m = 30
     test.traversability_map_scalex =  0.1   
     test.traversability_map_scaley = 0.1
+    test.number_of_random_circles = 20
     test.configure
     test.start
         
@@ -48,6 +49,7 @@ Orocos.run  'global_path_planner::Task' => 'planner',
     Vizkit.display test.port("traversability_map")
     Vizkit.display test.port("start_pose_samples"), :widget => Vizkit.default_loader.RigidBodyStateVisualization
     Vizkit.display test.port("goal_pose_samples"), :widget => Vizkit.default_loader.RigidBodyStateVisualization
+    Vizkit.display planner.path
     Vizkit.display planner.trajectory
  
     Vizkit.exec

@@ -2,8 +2,11 @@
 
 #include "Task.hpp"
 
-#include <global_path_planner/GlobalPathPlanner.hpp>
+#include <base/logging/logging_printf_style.h>
+
 #include <envire/Orocos.hpp>
+
+#include <global_path_planner/GlobalPathPlanner.hpp>
 
 using namespace global_path_planner;
 
@@ -72,6 +75,7 @@ void Task::updateHook()
     if(!mpGlobalPathPlanner->plan(10)) {
         LOG_WARN("Planning could not be finished");
     } else { 
+        _path.write(mpGlobalPathPlanner->getPath());
         std::vector<base::Trajectory> vec_traj; 
         vec_traj.push_back(mpGlobalPathPlanner->getTrajectory(0.6));
         _trajectory.write(vec_traj);

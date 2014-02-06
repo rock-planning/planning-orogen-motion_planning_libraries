@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <time.h> 
 
+#include <envire/core/Environment.hpp>
 #include <envire/maps/TraversabilityGrid.hpp>
 #include <envire/operators/SimpleTraversability.hpp>
 #include <orocos/envire/Orocos.hpp>
@@ -92,7 +93,6 @@ base::samples::RigidBodyState Test::createRandomGridPose(int max_width_m, int ma
     
     // Create an angle between 0 and 360 in radians.
     double rot_radians = ((rand() % 360) / 180.0) * M_PI; 
-    std::cout << "Rotation " << rot_radians << std::endl;
     rbs.orientation = Eigen::AngleAxis<double>(rot_radians, base::Vector3d(0,0,1));
     
     rbs.time = base::Time::now();
@@ -132,7 +132,7 @@ void Test::createTraversabilityMap() {
             break;
         }
         case RANDOM_CIRCLES: {
-            static int num = rand() % 10 + 5;
+            static int num = rand() % _number_of_random_circles.get();
             int center_x = 0, center_y = 0, radius = 0;
             int num_cells_x = _traversability_map_width_m.get() / 
                     _traversability_map_scalex.get();
