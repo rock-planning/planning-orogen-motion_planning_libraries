@@ -119,7 +119,7 @@ namespace global_path_planner {
         void createTraversabilityMap();
         
         void drawCircle(envire::TraversabilityGrid* trav, unsigned int center_x, 
-                unsigned int center_y, int radius);
+                unsigned int center_y, int radius, int cost_class);
         
         double dist(int x1, int y1, int x2, int y2);
     };

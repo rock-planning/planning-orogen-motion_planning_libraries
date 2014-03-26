@@ -7,6 +7,8 @@
 
 #include <envire/core/Environment.hpp>
 
+#include <global_path_planner/ompl/Ompl.hpp>
+
 namespace global_path_planner {
 
     class GlobalPathPlanner;
@@ -29,8 +31,11 @@ namespace global_path_planner {
     {
 	friend class TaskBase;
     protected:
-        GlobalPathPlanner* mpGlobalPathPlanner;
+        //GlobalPathPlanner* mpGlobalPathPlanner;
+        Ompl* mpGlobalPathPlanner;
         envire::Environment mEnv;
+        base::samples::RigidBodyState mStartPose;
+        base::samples::RigidBodyState mGoalPose;
 
     public:
         /** TaskContext constructor for Task

@@ -23,7 +23,10 @@ task_context "Task" do
         doc("Goal pose in the world, using x and y and yaw.")
 
     output_port('path', '/std/vector<base::Waypoint>').
-        doc "Single waypoints."
+        doc "Waypoint list.."
+        
+    output_port('samples', '/std/vector<base::Waypoint>').
+        doc "Contains all valid samples"
 
     output_port("trajectory", "std::vector</base/Trajectory>").
         doc("Spline format.")
@@ -33,6 +36,12 @@ task_context "Task" do
         
     output_port('debug_goal_pose_samples', 'base/samples/RigidBodyState').
         doc("Current goal position")
+        
+    output_port('waypoint_start', 'base/Waypoint').
+        doc "Start pose converted to a waypoint."
+        
+    output_port('waypoint_goal', 'base/Waypoint').
+        doc "Goal pose converted to a waypoint."
 
     #port_driven 'traversability_map', 'goal_pose_samples'
     periodic 1.0

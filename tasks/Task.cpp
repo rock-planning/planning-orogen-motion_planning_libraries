@@ -13,13 +13,13 @@ using namespace global_path_planner;
 Task::Task(std::string const& name)
     : TaskBase(name)
 {
-    mpGlobalPathPlanner = new GlobalPathPlanner();
+    mpGlobalPathPlanner = new Ompl();
 }
 
 Task::Task(std::string const& name, RTT::ExecutionEngine* engine)
     : TaskBase(name, engine)
 {
-    mpGlobalPathPlanner = new GlobalPathPlanner();
+    mpGlobalPathPlanner = new Ompl();
 }
 
 Task::~Task()
@@ -59,27 +59,59 @@ void Task::updateHook()
     }
      
     // Set start pose.
-    base::samples::RigidBodyState start_pose;
-    if(_start_pose_samples.read(start_pose) == RTT::NewData) {
-        mpGlobalPathPlanner->setStartWorld(start_pose);
-        _debug_start_pose_samples.write(start_pose);
+    if(_start_pose_samples.read(mStartPose) == RTT::NewData) {
+        mpGlobalPathPlanner->setStartPoseInWorld(mStartPose);
+        _debug_start_pose_samples.write(mStartPose);
     }
     
     // Set goal pose.
-    base::samples::RigidBodyState goal_pose;
-    if(_goal_pose_samples.read(goal_pose) == RTT::NewData) {
-        mpGlobalPathPlanner->setGoalWorld(goal_pose);
-        _debug_goal_pose_samples.write(goal_pose);
+    if(_goal_pose_samples.read(mGoalPose) == RTT::NewData) {
+        mpGlobalPathPlanner->setGoalPoseInWorld(mGoalPose);
+        base::samples::RigidBodyState new_goal;
+        new_goal.position = mGoalPose.position;
+        double yaw = mGoalPose.getYaw();
+        new_goal.orientation = Eigen::AngleAxis<double>(yaw, Eigen::Vector3d::UnitZ());
+        _debug_goal_pose_samples.write(mGoalPose);
     }
-    
-    if(!mpGlobalPathPlanner->plan(10)) {
+  
+    if(!mpGlobalPathPlanner->plan(30)) {
         LOG_WARN("Planning could not be finished");
     } else { 
-        _path.write(mpGlobalPathPlanner->getPath());
+#if 0
+        // Create test waypoints
+        /*
+        std::vector <base::Waypoint > path;
+        path.push_back(base::Waypoint(base::Vector3d(0,0,0), 0, 0, 0));
+        path.push_back(base::Waypoint(base::Vector3d(0,1,0), M_PI/2.0, 0, 0));
+        path.push_back(base::Waypoint(base::Vector3d(1,1,0), M_PI, 0, 0));
+        path.push_back(base::Waypoint(base::Vector3d(1,0,0), -M_PI/2.0, 0, 0));
+        _path.write(path);
+        */ 
+        std::vector <base::Waypoint > path = mpGlobalPathPlanner->getPath();
+        _path.write(path);
+
+        // Test: Start/goal pose converted to a waypoint.
+        base::Waypoint wp_start(mStartPose.position, mStartPose.getYaw(), 0, 0);
+        _waypoint_start.write(wp_start);
+        base::Waypoint wp_goal(mGoalPose.position, mGoalPose.getYaw(), 0, 0);
+        _waypoint_goal.write(wp_goal);
+        
         std::vector<base::Trajectory> vec_traj; 
         vec_traj.push_back(mpGlobalPathPlanner->getTrajectory(0.6));
         _trajectory.write(vec_traj);
+#endif
     }
+    
+        std::vector <base::Waypoint > path = mpGlobalPathPlanner->getPathInWorld();
+        _path.write(path);
+        
+        
+        std::vector<base::Trajectory> vec_traj; 
+        vec_traj.push_back(mpGlobalPathPlanner->getTrajectoryInWorld(0.6));
+        _trajectory.write(vec_traj);
+        
+    // Send all valid samples as waypoints.
+    //_samples.write(mpGlobalPathPlanner->getSamples());
 }
 void Task::errorHook()
 {
