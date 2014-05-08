@@ -12,6 +12,12 @@ task_context "Task" do
 
     property("traversability_map_id", "std/string", "/traversability").
         doc("Try to extract this map, otherwise the first trav map will be used.")
+        
+    property("sbpl_env_file", "std/string").
+        doc("SBPL environment file")
+        
+    property("sbpl_motion_primitives_file", "std/string").
+        doc("SBPL motion primitives file")
 
     input_port('traversability_map', ro_ptr('std/vector</envire/BinaryEvent>')).
         doc("Traversability map. Has to be received once before planning can be executed.")

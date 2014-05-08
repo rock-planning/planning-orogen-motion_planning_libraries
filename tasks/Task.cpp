@@ -1,25 +1,33 @@
 /* Generated from orogen/lib/orogen/templates/tasks/Task.cpp */
 
 #include "Task.hpp"
+#include </opt/software_transterra/planning/global_path_planner/src/sbpl/Sbpl.hpp>
 
 #include <base/logging/logging_printf_style.h>
 
 #include <envire/Orocos.hpp>
 
-#include <global_path_planner/GlobalPathPlanner.hpp>
+#include <global_path_planner/ompl/Ompl.hpp>
+#include <global_path_planner/sbpl/Sbpl.hpp>
 
 using namespace global_path_planner;
 
 Task::Task(std::string const& name)
     : TaskBase(name)
 {
-    mpGlobalPathPlanner = new Ompl();
+    ConfigurationSBPL conf;
+    conf.mSBPLEnvFile = "/opt/software_transterra/external/sbpl/env_examples/nav2d/env2.cfg"; //_sbpl_env_file.get();
+    conf.mSBPLMotionPrimitivesFile = _sbpl_motion_primitives_file.get();
+    mpGlobalPathPlanner = new Sbpl(conf);
 }
 
 Task::Task(std::string const& name, RTT::ExecutionEngine* engine)
     : TaskBase(name, engine)
 {
-    mpGlobalPathPlanner = new Ompl();
+    ConfigurationSBPL conf;
+    conf.mSBPLEnvFile = _sbpl_env_file.get();
+    conf.mSBPLMotionPrimitivesFile = _sbpl_motion_primitives_file.get();
+    mpGlobalPathPlanner = new Sbpl(conf);
 }
 
 Task::~Task()
@@ -27,8 +35,6 @@ Task::~Task()
     delete mpGlobalPathPlanner;
     mpGlobalPathPlanner = NULL;
 }
-
-
 
 /// The following lines are template definitions for the various state machine
 // hooks defined by Orocos::RTT. See Task.hpp for more detailed
@@ -100,7 +106,7 @@ void Task::updateHook()
         vec_traj.push_back(mpGlobalPathPlanner->getTrajectory(0.6));
         _trajectory.write(vec_traj);
 #endif
-    }
+
     
         std::vector <base::Waypoint > path = mpGlobalPathPlanner->getPathInWorld();
         _path.write(path);
@@ -109,6 +115,7 @@ void Task::updateHook()
         std::vector<base::Trajectory> vec_traj; 
         vec_traj.push_back(mpGlobalPathPlanner->getTrajectoryInWorld(0.6));
         _trajectory.write(vec_traj);
+    }
         
     // Send all valid samples as waypoints.
     //_samples.write(mpGlobalPathPlanner->getSamples());

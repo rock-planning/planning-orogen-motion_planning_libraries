@@ -14,19 +14,24 @@ ENV['LC_NUMERIC'] = 'C'
 
 Orocos.run  'global_path_planner::Task' => 'planner',
             'global_path_planner::Test' => 'test',
-            "valgrind" => false, 
+            "valgrind" => false,
+            'output' => nil, 
             "wait" => 1000 do
           
     planner = TaskContext::get 'planner'
     planner.traversability_map_id = "trav"
+    planner.sbpl_env_file = File.join(ENV['AUTOPROJ_PROJECT_BASE'], 'external/sbpl/env_examples/env2.cfg')
+    planner.sbpl_motion_primitives_file = File.join(ENV['AUTOPROJ_PROJECT_BASE'], '/external/sbpl/matlab/mprim')
+    puts "ENV FILE #{planner.sbpl_env_file}"
+    
     planner.configure
     planner.start
 
     test = TaskContext::get 'test'
     test.traversability_map_id = 'trav'
     test.traversability_map_type = 'RANDOM_CIRCLES'
-    test.traversability_map_width_m = 30
-    test.traversability_map_height_m = 30
+    test.traversability_map_width_m = 10
+    test.traversability_map_height_m = 120
     test.traversability_map_scalex =  0.1   
     test.traversability_map_scaley = 0.1
     test.number_of_random_circles = 100
