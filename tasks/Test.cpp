@@ -10,9 +10,9 @@
 #include <envire/operators/SimpleTraversability.hpp>
 #include <orocos/envire/Orocos.hpp>
 
-#include <global_path_planner/GlobalPathPlanner.hpp>
+#include <motion_planning_libraries/MotionPlanningLibraries.hpp>
 
-using namespace global_path_planner;
+using namespace motion_planning_libraries;
 
 Test::Test(std::string const& name)
     : TestBase(name), mpEnv(NULL), mpFrameNode(NULL), mpTravGrid(NULL)
@@ -62,11 +62,11 @@ void Test::updateHook()
 
     // Create random grid poses (start and goal) and transform them to the world.
     base::samples::RigidBodyState start;
-    GlobalPathPlanner::grid2world(mpTravGrid, createRandomGridPose(width, height), start);
+    MotionPlanningLibraries::grid2world(mpTravGrid, createRandomGridPose(width, height), start);
     _start_pose_samples.write(start);
     
     base::samples::RigidBodyState goal;
-    GlobalPathPlanner::grid2world(mpTravGrid, createRandomGridPose(width, height), goal);
+    MotionPlanningLibraries::grid2world(mpTravGrid, createRandomGridPose(width, height), goal);
     _goal_pose_samples.write(goal);
 }
 

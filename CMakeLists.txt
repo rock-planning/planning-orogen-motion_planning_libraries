@@ -1,8 +1,8 @@
-PROJECT(global_path_planner)
+PROJECT(motion_planning_libraries)
 cmake_minimum_required(VERSION 2.6)
 
 SET (CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/.orogen/config")
-INCLUDE(global_path_plannerBase)
+INCLUDE(motion_planning_librariesBase)
 
 # FIND_PACKAGE(KDL)
 # FIND_PACKAGE(OCL)

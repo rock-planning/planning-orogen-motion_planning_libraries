@@ -1,11 +1,11 @@
-name "global_path_planner"
+name "motion_planning_libraries"
 
 using_library "envire"
-using_library "global_path_planner"
+using_library "motion_planning_libraries"
 
 import_types_from "base"
 import_types_from "envire"	
-import_types_from "global_path_plannerTypes.hpp"
+import_types_from "motion_planning_librariesTypes.hpp"
 
 task_context "Task" do
     needs_configuration
@@ -56,7 +56,7 @@ end
 task_context "Test" do
     needs_configuration
     
-    property("traversability_map_type", 'global_path_planner/TRAV_MAP_MODE', 'RANDOM_CIRCLES').
+    property("traversability_map_type", 'motion_planning_libraries/TRAV_MAP_MODE', 'RANDOM_CIRCLES').
         doc("Type of trav map which should be created.")
 
     property("traversability_map_id", "std/string", "/traversability").

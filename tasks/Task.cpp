@@ -1,16 +1,15 @@
 /* Generated from orogen/lib/orogen/templates/tasks/Task.cpp */
 
 #include "Task.hpp"
-#include </opt/software_transterra/planning/global_path_planner/src/sbpl/Sbpl.hpp>
 
 #include <base/logging/logging_printf_style.h>
 
 #include <envire/Orocos.hpp>
 
-#include <global_path_planner/ompl/Ompl.hpp>
-#include <global_path_planner/sbpl/Sbpl.hpp>
+#include <motion_planning_libraries/ompl/Ompl.hpp>
+#include <motion_planning_libraries/sbpl/Sbpl.hpp>
 
-using namespace global_path_planner;
+using namespace motion_planning_libraries;
 
 Task::Task(std::string const& name)
     : TaskBase(name)
@@ -20,7 +19,7 @@ Task::Task(std::string const& name)
     //conf.mSBPLMotionPrimitivesFile = _sbpl_motion_primitives_file.get();
     conf.mSBPLMotionPrimitivesFile = "/opt/software_transterra/external/sbpl/matlab/mprim/pr2_10cm.mprim";
     conf.mSBPLEnvType = SBPL_XYTHETA;
-    mpGlobalPathPlanner = new Sbpl(conf);
+    mpMotionPlanningLibraries = new Sbpl(conf);
 }
 
 Task::Task(std::string const& name, RTT::ExecutionEngine* engine)
@@ -30,8 +29,8 @@ Task::Task(std::string const& name, RTT::ExecutionEngine* engine)
 
 Task::~Task()
 {
-    delete mpGlobalPathPlanner;
-    mpGlobalPathPlanner = NULL;
+    delete mpMotionPlanningLibraries;
+    mpMotionPlanningLibraries = NULL;
 }
 
 /// The following lines are template definitions for the various state machine
@@ -59,18 +58,18 @@ void Task::updateHook()
     if(_traversability_map.read(binary_event) == RTT::NewData)
     {
         mEnv.applyEvents(*binary_event);   
-        mpGlobalPathPlanner->setTravGrid(&mEnv, _traversability_map_id);
+        mpMotionPlanningLibraries->setTravGrid(&mEnv, _traversability_map_id);
     }
      
     // Set start pose.
     if(_start_pose_samples.read(mStartPose) == RTT::NewData) {
-        mpGlobalPathPlanner->setStartPoseInWorld(mStartPose);
+        mpMotionPlanningLibraries->setStartPoseInWorld(mStartPose);
         _debug_start_pose_samples.write(mStartPose);
     }
     
     // Set goal pose.
     if(_goal_pose_samples.read(mGoalPose) == RTT::NewData) {
-        mpGlobalPathPlanner->setGoalPoseInWorld(mGoalPose);
+        mpMotionPlanningLibraries->setGoalPoseInWorld(mGoalPose);
         base::samples::RigidBodyState new_goal;
         new_goal.position = mGoalPose.position;
         double yaw = mGoalPose.getYaw();
@@ -78,7 +77,7 @@ void Task::updateHook()
         _debug_goal_pose_samples.write(mGoalPose);
     }
   
-    if(!mpGlobalPathPlanner->plan(30)) {
+    if(!mpMotionPlanningLibraries->plan(30)) {
         LOG_WARN("Planning could not be finished");
     } else { 
 #if 0
@@ -91,7 +90,7 @@ void Task::updateHook()
         path.push_back(base::Waypoint(base::Vector3d(1,0,0), -M_PI/2.0, 0, 0));
         _path.write(path);
         */ 
-        std::vector <base::Waypoint > path = mpGlobalPathPlanner->getPath();
+        std::vector <base::Waypoint > path = mpMotionPlanningLibraries->getPath();
         _path.write(path);
 
         // Test: Start/goal pose converted to a waypoint.
@@ -101,22 +100,22 @@ void Task::updateHook()
         _waypoint_goal.write(wp_goal);
         
         std::vector<base::Trajectory> vec_traj; 
-        vec_traj.push_back(mpGlobalPathPlanner->getTrajectory(0.6));
+        vec_traj.push_back(mpMotionPlanningLibraries->getTrajectory(0.6));
         _trajectory.write(vec_traj);
 #endif
 
     
-        std::vector <base::Waypoint > path = mpGlobalPathPlanner->getPathInWorld();
+        std::vector <base::Waypoint > path = mpMotionPlanningLibraries->getPathInWorld();
         _path.write(path);
         
         
         std::vector<base::Trajectory> vec_traj; 
-        vec_traj.push_back(mpGlobalPathPlanner->getTrajectoryInWorld(0.6));
+        vec_traj.push_back(mpMotionPlanningLibraries->getTrajectoryInWorld(0.6));
         _trajectory.write(vec_traj);
     }
         
     // Send all valid samples as waypoints.
-    //_samples.write(mpGlobalPathPlanner->getSamples());
+    //_samples.write(mpMotionPlanningLibraries->getSamples());
 }
 void Task::errorHook()
 {

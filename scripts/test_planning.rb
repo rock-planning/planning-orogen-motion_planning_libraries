@@ -12,8 +12,8 @@ Orocos.initialize
 ENV['LANG'] = 'C'
 ENV['LC_NUMERIC'] = 'C'
 
-Orocos.run  'global_path_planner::Task' => 'planner',
-            'global_path_planner::Test' => 'test',
+Orocos.run  'motion_planning_libraries::Task' => 'planner',
+            'motion_planning_libraries::Test' => 'test',
             "valgrind" => false,
             'output' => nil, 
             "wait" => 1000 do

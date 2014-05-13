@@ -1,9 +1,9 @@
 /* Generated from orogen/lib/orogen/templates/tasks/Task.hpp */
 
-#ifndef GLOBAL_PATH_PLANNER_TEST_TASK_HPP
-#define GLOBAL_PATH_PLANNER_TEST_TASK_HPP
+#ifndef MOTION_PLANNING_LIBRARIES_TEST_TASK_HPP
+#define MOTION_PLANNING_LIBRARIES_TEST_TASK_HPP
 
-#include "global_path_planner/TestBase.hpp"
+#include "motion_planning_libraries/TestBase.hpp"
 
 namespace envire {
     class Environment;
@@ -11,7 +11,7 @@ namespace envire {
     class TraversabilityGrid;
 }
 
-namespace global_path_planner {
+namespace motion_planning_libraries {
 
     /*! \class Test 
      * \brief The task context provides and requires services. It uses an ExecutionEngine to perform its functions.
@@ -22,7 +22,7 @@ namespace global_path_planner {
      * The name of a TaskContext is primarily defined via:
      \verbatim
      deployment 'deployment_name'
-         task('custom_task_name','global_path_planner::Test')
+         task('custom_task_name','motion_planning_libraries::Test')
      end
      \endverbatim
      *  It can be dynamically adapted when the deployment is called with a prefix argument. 
@@ -42,7 +42,7 @@ namespace global_path_planner {
          * \param name Name of the task. This name needs to be unique to make it identifiable via nameservices.
          * \param initial_state The initial TaskState of the TaskContext. Default is Stopped state.
          */
-        Test(std::string const& name = "global_path_planner::Test");
+        Test(std::string const& name = "motion_planning_libraries::Test");
 
         /** TaskContext constructor for Test 
          * \param name Name of the task. This name needs to be unique to make it identifiable for nameservices. 

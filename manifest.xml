@@ -1,12 +1,11 @@
 <package>
-  <description brief="Global path planner using OMPL.">
-  Currently the 2D position and the yaw-angle are regarded.
+  <description brief="Collection of motion planning libraries">
   </description>
   <author>Stefan/stefan.haase@dfki.de</author>
   <license></license>
   <url>http://</url>
   <logo>http://</logo>
   <depend package="base/cmake" />
-  <depend package="planning/global_path_planner" />
+  <depend package="planning/motion_planning_libraries" />
   <depend package="slam/orogen/envire" />
 </package>

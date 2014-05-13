@@ -1,23 +1,23 @@
 /* Generated from orogen/lib/orogen/templates/tasks/Task.hpp */
 
-#ifndef GLOBAL_PATH_PLANNER_TASK_TASK_HPP
-#define GLOBAL_PATH_PLANNER_TASK_TASK_HPP
+#ifndef MOTION_PLANNING_LIBRARIES_TASK_HPP
+#define MOTION_PLANNING_LIBRARIES_TASK_HPP
 
-#include "global_path_planner/TaskBase.hpp"
+#include "motion_planning_libraries/TaskBase.hpp"
 
 #include <envire/core/Environment.hpp>
 
-#include <global_path_planner/GlobalPathPlanner.hpp>
+#include <motion_planning_libraries/MotionPlanningLibraries.hpp>
 
-namespace global_path_planner {
+namespace motion_planning_libraries {
 
-    class GlobalPathPlanner;
+    class MotionPlanningLibraries;
 
     class Task : public TaskBase
     {
 	friend class TaskBase;
     protected:
-        GlobalPathPlanner* mpGlobalPathPlanner;
+        MotionPlanningLibraries* mpMotionPlanningLibraries;
         envire::Environment mEnv;
         base::samples::RigidBodyState mStartPose;
         base::samples::RigidBodyState mGoalPose;
@@ -27,7 +27,7 @@ namespace global_path_planner {
          * \param name Name of the task. This name needs to be unique to make it identifiable via nameservices.
          * \param initial_state The initial TaskState of the TaskContext. Default is Stopped state.
          */
-        Task(std::string const& name = "global_path_planner::Task");
+        Task(std::string const& name = "motion_planning_libraries::Task");
 
         /** TaskContext constructor for Task 
          * \param name Name of the task. This name needs to be unique to make it identifiable for nameservices. 
