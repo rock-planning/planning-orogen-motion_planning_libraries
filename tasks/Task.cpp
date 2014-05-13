@@ -16,18 +16,16 @@ Task::Task(std::string const& name)
     : TaskBase(name)
 {
     ConfigurationSBPL conf;
-    conf.mSBPLEnvFile = "/opt/software_transterra/external/sbpl/env_examples/nav2d/env2.cfg"; //_sbpl_env_file.get();
-    conf.mSBPLMotionPrimitivesFile = _sbpl_motion_primitives_file.get();
+    //conf.mSBPLEnvFile = "/opt/software_transterra/external/sbpl/env_examples/nav2d/env2.cfg"; //_sbpl_env_file.get();
+    //conf.mSBPLMotionPrimitivesFile = _sbpl_motion_primitives_file.get();
+    conf.mSBPLMotionPrimitivesFile = "/opt/software_transterra/external/sbpl/matlab/mprim/pr2_10cm.mprim";
+    conf.mSBPLEnvType = SBPL_XYTHETA;
     mpGlobalPathPlanner = new Sbpl(conf);
 }
 
 Task::Task(std::string const& name, RTT::ExecutionEngine* engine)
     : TaskBase(name, engine)
 {
-    ConfigurationSBPL conf;
-    conf.mSBPLEnvFile = _sbpl_env_file.get();
-    conf.mSBPLMotionPrimitivesFile = _sbpl_motion_primitives_file.get();
-    mpGlobalPathPlanner = new Sbpl(conf);
 }
 
 Task::~Task()

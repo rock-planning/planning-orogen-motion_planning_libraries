@@ -50,7 +50,7 @@ task_context "Task" do
         doc "Goal pose converted to a waypoint."
 
     #port_driven 'traversability_map', 'goal_pose_samples'
-    periodic 1.0
+    periodic 10.0
 end
 
 task_context "Test" do

@@ -18,7 +18,6 @@ namespace global_path_planner {
 	friend class TaskBase;
     protected:
         GlobalPathPlanner* mpGlobalPathPlanner;
-        //Ompl* mpGlobalPathPlanner;
         envire::Environment mEnv;
         base::samples::RigidBodyState mStartPose;
         base::samples::RigidBodyState mGoalPose;

@@ -109,7 +109,7 @@ void Test::createTraversabilityMap() {
         delete mpEnv;
     }
     mpEnv = new envire::Environment();
-
+    
     envire::TraversabilityGrid* trav = new envire::TraversabilityGrid(
             (size_t)_traversability_map_width_m.get() / _traversability_map_scalex.get(), 
             (size_t)_traversability_map_height_m.get() / _traversability_map_scaley.get(), 
@@ -125,6 +125,13 @@ void Test::createTraversabilityMap() {
     mpEnv->getRootNode()->addChild(frame_node);
     trav->setFrameNode(frame_node);
     mpFrameNode = frame_node;
+    
+    // Defines driveability values.
+    trav->setTraversabilityClass(0, envire::TraversabilityClass(0.5)); // unknown
+    // class 1 (obstacle) to 10 -> driveability 0.0 to 1.0
+    for(int i=0; i < 10; ++i) {  
+        trav->setTraversabilityClass(i+1, envire::TraversabilityClass(i/10.0));
+    }
    
     switch (_traversability_map_type.get()) {
         case CLEAR: {
@@ -146,12 +153,12 @@ void Test::createTraversabilityMap() {
                 drawCircle(trav, center_x, center_y, radius, 
                         envire::SimpleTraversability::CLASS_OBSTACLE);
             }
-            // 1/2 other classes 2 - 12
+            // 1/2 other classes 2 - 10
             for(int i=0; i<num/2.0+0.5; ++i) {
                 center_x = rand() % num_cells_x;
                 center_y = rand() % num_cells_y;
                 radius = rand() % (int)(3 / _traversability_map_scalex.get()) + 1;
-                cost_class = rand() % 11 + 2;
+                cost_class = rand() % 9 + 2;
                 drawCircle(trav, center_x, center_y, radius, cost_class);
             }
             break;
@@ -185,6 +192,7 @@ void Test::drawCircle(envire::TraversabilityGrid* trav, unsigned int center_x,
         for(int y=start_y; y < end_y; ++y) {
             if(dist(x,y,center_x,center_y) < radius) {
                 trav_array[y][x] = cost_class; //envire::SimpleTraversability::CLASS_OBSTACLE;
+                trav->setProbability(1.0, x, y);
             }
         }
     }
