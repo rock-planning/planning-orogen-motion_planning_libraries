@@ -19,11 +19,24 @@ Orocos.run  'motion_planning_libraries::Task' => 'planner',
             "wait" => 1000 do
           
     planner = TaskContext::get 'planner'
-    planner.traversability_map_id = "trav"
-    #planner.sbpl_env_file = File.join(ENV['AUTOPROJ_PROJECT_BASE'], 'external/sbpl/env_examples/env2.cfg')
-    planner.sbpl_motion_primitives_file = File.join(ENV['AUTOPROJ_PROJECT_BASE'], '/external/sbpl/matlab/mprim')
-    puts "ENV FILE #{planner.sbpl_env_file}"
+    planner.traversability_map_id = "trav" 
+    planner.planning_time_sec = 10.0
     
+    planner.config do |p|
+        p.mPlanningLibType = :LIB_SBPL
+        p.mEnvType = :ENV_XYTHETA
+        p.mRobotWidth = 0.5
+        p.mRobotHeight = 0.5
+        p.mRobotForwardVelocity = 0.2 # m/sec.
+        p.mRobotRotationalVelocity = 1.0 # sec/45° degrees turn, should not be 0.0.  
+        p.mSearchUntilFirstSolution = false
+        
+        # SBPL specific configuration
+        p.mSBPLEnvFile = ""
+        p.mSBPLMotionPrimitivesFile = File.join(ENV['AUTOPROJ_PROJECT_BASE'], '/external/sbpl/matlab/mprim/pr2_10cm.mprim')
+        p.mSBPLForwardSearch = false # ADPlanner throws 'g-values are non-decreasing' if true
+    end
+
     planner.configure
     planner.start
 

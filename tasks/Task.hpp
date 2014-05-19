@@ -17,7 +17,7 @@ namespace motion_planning_libraries {
     {
 	friend class TaskBase;
     protected:
-        MotionPlanningLibraries* mpMotionPlanningLibraries;
+        boost::shared_ptr<MotionPlanningLibraries> mpMotionPlanningLibraries;
         envire::Environment mEnv;
         base::samples::RigidBodyState mStartPose;
         base::samples::RigidBodyState mGoalPose;

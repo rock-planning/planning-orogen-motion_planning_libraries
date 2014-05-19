@@ -6,6 +6,7 @@ using_library "motion_planning_libraries"
 import_types_from "base"
 import_types_from "envire"	
 import_types_from "motion_planning_librariesTypes.hpp"
+import_types_from "motion_planning_libraries/Config.hpp"
 
 task_context "Task" do
     needs_configuration
@@ -13,11 +14,11 @@ task_context "Task" do
     property("traversability_map_id", "std/string", "/traversability").
         doc("Try to extract this map, otherwise the first trav map will be used.")
         
-    property("sbpl_env_file", "std/string").
-        doc("SBPL environment file")
-        
-    property("sbpl_motion_primitives_file", "std/string").
-        doc("SBPL motion primitives file")
+    property("config", "motion_planning_libraries/Config").
+        doc("Motion planning configuration file.")
+    
+    property("planning_time_sec", "double", 10).
+        doc("Maximal allowed planning time per cycle.")
 
     input_port('traversability_map', ro_ptr('std/vector</envire/BinaryEvent>')).
         doc("Traversability map. Has to be received once before planning can be executed.")
