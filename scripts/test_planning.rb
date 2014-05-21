@@ -26,9 +26,10 @@ Orocos.run  'motion_planning_libraries::Task' => 'planner',
         p.mPlanningLibType = :LIB_SBPL
         p.mEnvType = :ENV_XYTHETA
         p.mRobotWidth = 0.5
-        p.mRobotHeight = 0.5
-        p.mRobotForwardVelocity = 0.2 # m/sec.
-        p.mRobotRotationalVelocity = 1.0 # sec/45° degrees turn, should not be 0.0.  
+        p.mRobotLength = 0.5
+        p.mRobotForwardVelocity = 1.0 # m/sec.
+        p.mRobotBackwardVelocity = 0.5 # m/sec.
+        p.mRobotRotationalVelocity = 0.4 # rad/sec.
         p.mSearchUntilFirstSolution = false
         
         # SBPL specific configuration
