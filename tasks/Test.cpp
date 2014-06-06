@@ -91,7 +91,7 @@ base::samples::RigidBodyState Test::createRandomGridPose(int max_width_m, int ma
     rbs.position = base::Vector3d(rand() % max_width_m, rand() % max_height_m, 0);
     
     // Create an angle between 0 and 360 in radians. -180 to 179
-    double rot_radians = ((rand() % 360) / 180.0 - 180.0) * M_PI; 
+    double rot_radians = (((rand() % 360) - 180.0) / 180.0 ) * M_PI; 
     rbs.orientation = Eigen::AngleAxis<double>(rot_radians, base::Vector3d(0,0,1));
     
     rbs.time = base::Time::now();

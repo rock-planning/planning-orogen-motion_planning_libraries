@@ -27,9 +27,9 @@ Orocos.run  'motion_planning_libraries::Task' => 'planner',
         p.mEnvType = :ENV_XYTHETA
         p.mRobotWidth = 0.5
         p.mRobotLength = 0.5
-        p.mRobotForwardVelocity = 1.0 # m/sec.
-        p.mRobotBackwardVelocity = 0.5 # m/sec.
-        p.mRobotRotationalVelocity = 0.4 # rad/sec.
+        p.mRobotForwardVelocity = 0.8 # m/sec.
+        p.mRobotBackwardVelocity = 0.4 # m/sec.
+        p.mRobotRotationalVelocity = 0.2 # rad/sec.
         p.mSearchUntilFirstSolution = false
         
         # SBPL specific configuration
@@ -48,7 +48,7 @@ Orocos.run  'motion_planning_libraries::Task' => 'planner',
     test.traversability_map_height_m = 10
     test.traversability_map_scalex =  0.1   
     test.traversability_map_scaley = 0.1
-    test.number_of_random_circles = 100
+    test.number_of_random_circles = 50
 
     test.configure
     test.start
