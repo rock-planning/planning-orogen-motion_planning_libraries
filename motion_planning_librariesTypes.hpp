@@ -12,7 +12,9 @@ namespace motion_planning_libraries {
 
 enum TRAV_MAP_MODE {
     CLEAR,
-    RANDOM_CIRCLES
+    RANDOM_CIRCLES,
+    RANDOM_RECTANGLES,
+    SMALL_OPENING
 };
 
 }

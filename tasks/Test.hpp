@@ -5,6 +5,8 @@
 
 #include "motion_planning_libraries/TestBase.hpp"
 
+#include <motion_planning_libraries/Helpers.hpp>
+
 namespace envire {
     class Environment;
     class FrameNode;
@@ -12,6 +14,14 @@ namespace envire {
 }
 
 namespace motion_planning_libraries {
+    
+    /**
+     * Used to create a shared-ptr from a reference.
+     */
+    struct NullDeleter
+    {
+        void operator()(void const *) const {}
+    };
 
     /*! \class Test 
      * \brief The task context provides and requires services. It uses an ExecutionEngine to perform its functions.
@@ -35,7 +45,9 @@ namespace motion_planning_libraries {
         envire::Environment* mpEnv;
         envire::FrameNode* mpFrameNode;
         envire::TraversabilityGrid* mpTravGrid;
+        boost::shared_ptr<TravData> mpTravData;
         base::samples::RigidBodyState mRBSTravGrid;
+        GridCalculations mGridCalculations;
 
     public:
         /** TaskContext constructor for Test
@@ -113,13 +125,29 @@ namespace motion_planning_libraries {
          */
         void cleanupHook();
         
-    private:
-        base::samples::RigidBodyState createRandomGridPose(int max_width_m, int max_height_m);
-        
+    private:        
         void createTraversabilityMap();
+        
+        void createStartGoalPose(int width, int height,
+                base::samples::RigidBodyState& start, base::samples::RigidBodyState& goal);
         
         void drawCircle(envire::TraversabilityGrid* trav, unsigned int center_x, 
                 unsigned int center_y, int radius, int cost_class);
+        
+        // theta: [0,360), required to pass random angles
+        base::samples::RigidBodyState createPose(int width, int height, 
+                int x, int y, unsigned int theta_degree);
+              
+        /** 
+         *         |    ##
+         * height/ |    l#
+         * length  |  
+         *    y    ------->
+         *            width x
+         * l = lower_left
+         */      
+        void drawRectangle(envire::TraversabilityGrid* trav, int lowerleft_x, int lowerleft_y, 
+                unsigned int width, unsigned int length, int cost_class);
         
         double dist(int x1, int y1, int x2, int y2);
     };

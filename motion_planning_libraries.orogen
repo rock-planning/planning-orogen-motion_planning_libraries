@@ -77,6 +77,9 @@ task_context "Test" do
         
     property("traversability_map_scaley", 'double', 0.1).
         doc("Height of a cell in meter.")
+        
+    property("opening_length", 'double', 2.0).
+        doc("Defines the length (wall runs along the y-axis) of the opening in meter for the environment SMALL_OPENING.")    
 
     output_port('traversability_map', ro_ptr('std/vector</envire/BinaryEvent>')).
         doc("Traversability map. Has to be received once before planning can be executed.")
