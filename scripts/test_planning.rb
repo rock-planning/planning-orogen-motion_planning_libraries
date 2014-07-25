@@ -23,10 +23,12 @@ Orocos.run  'motion_planning_libraries::Task' => 'planner',
     planner.planning_time_sec = 10.0
     
     planner.config do |p|
-        p.mPlanningLibType = :LIB_SBPL
-        p.mEnvType = :ENV_XYTHETA
-        p.mRobotWidth = 1.0
-        p.mRobotLength = 1.0
+        p.mPlanningLibType = :LIB_OMPL
+        p.mEnvType = :ENV_SHERPA
+        p.mRobotWidthMinMax.first = 1.0
+        p.mRobotWidthMinMax.second = 3.0
+        p.mRobotLengthMinMax.first = 1.0
+        p.mRobotLengthMinMax.second = 3.0
         p.mRobotForwardVelocity = 0.8 # m/sec.
         p.mRobotBackwardVelocity = 0.4 # m/sec.
         p.mRobotRotationalVelocity = 0.05 # 0.2 # rad/sec.
@@ -35,7 +37,7 @@ Orocos.run  'motion_planning_libraries::Task' => 'planner',
         
         # SBPL specific configuration
         p.mSBPLEnvFile = ""
-        p.mSBPLMotionPrimitivesFile = File.join(ENV['AUTOPROJ_PROJECT_BASE'], '/external/sbpl/matlab/mprim/pr2_10cm.mprim')
+        p.mSBPLMotionPrimitivesFile = File.join(ENV['AUTOPROJ_CURRENT_ROOT'], '/external/sbpl/matlab/mprim/pr2_10cm.mprim')
         p.mSBPLForwardSearch = false # ADPlanner throws 'g-values are non-decreasing' if true
     end
 
@@ -44,7 +46,7 @@ Orocos.run  'motion_planning_libraries::Task' => 'planner',
 
     test = TaskContext::get 'test'
     test.traversability_map_id = 'trav'
-    test.traversability_map_type = 'RANDOM_RECTANGLES'
+    test.traversability_map_type = 'SMALL_OPENING'
     test.traversability_map_width_m = 120
     test.traversability_map_height_m = 10
     test.traversability_map_scalex =  0.1   

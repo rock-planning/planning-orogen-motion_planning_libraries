@@ -56,13 +56,13 @@ void Task::updateHook()
      
     // Set start pose.
     if(_start_pose_samples.read(mStartPose) == RTT::NewData) {
-        mpMotionPlanningLibraries->setStartState(mStartPose);
+        mpMotionPlanningLibraries->setStartState(State(mStartPose, 0.5, 0.5));
         _debug_start_pose_samples.write(mStartPose);
     }
     
     // Set goal pose.
     if(_goal_pose_samples.read(mGoalPose) == RTT::NewData) {
-        mpMotionPlanningLibraries->setGoalState(mGoalPose);
+        mpMotionPlanningLibraries->setGoalState(State(mGoalPose,0.5,0.5));
         base::samples::RigidBodyState new_goal;
         new_goal.position = mGoalPose.position;
         double yaw = mGoalPose.getYaw();
