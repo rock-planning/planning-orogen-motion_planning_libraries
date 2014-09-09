@@ -21,6 +21,8 @@ namespace motion_planning_libraries {
         envire::Environment mEnv;
         base::samples::RigidBodyState mStartPose;
         base::samples::RigidBodyState mGoalPose;
+        State mStartState;
+        State mGoalState;
 
     public:
         /** TaskContext constructor for Task

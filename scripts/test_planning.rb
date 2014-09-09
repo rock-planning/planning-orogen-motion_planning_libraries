@@ -25,10 +25,10 @@ Orocos.run  'motion_planning_libraries::Task' => 'planner',
     planner.config do |p|
         p.mPlanningLibType = :LIB_OMPL
         p.mEnvType = :ENV_SHERPA
-        p.mRobotWidthMinMax.first = 1.0
-        p.mRobotWidthMinMax.second = 3.0
-        p.mRobotLengthMinMax.first = 1.0
-        p.mRobotLengthMinMax.second = 3.0
+        p.mRobotWidthMinMax.first = 0.5
+        p.mRobotWidthMinMax.second = 2.0
+        p.mRobotLengthMinMax.first = 0.5
+        p.mRobotLengthMinMax.second = 2.0
         p.mRobotForwardVelocity = 0.8 # m/sec.
         p.mRobotBackwardVelocity = 0.4 # m/sec.
         p.mRobotRotationalVelocity = 0.05 # 0.2 # rad/sec.
@@ -69,16 +69,14 @@ Orocos.run  'motion_planning_libraries::Task' => 'planner',
     end
 
     Vizkit.display planner
-    Vizkit.display test
     Vizkit.display test.port("traversability_map")
     Vizkit.display test.port("start_pose_samples"), :widget => Vizkit.default_loader.RigidBodyStateVisualization
     Vizkit.display test.port("goal_pose_samples"), :widget => Vizkit.default_loader.RigidBodyStateVisualization
-    Vizkit.display planner.port("debug_goal_pose_samples"), :widget => Vizkit.default_loader.RigidBodyStateVisualization
-    Vizkit.display planner.path
-    Vizkit.display planner.waypoint_start
-    Vizkit.display planner.waypoint_goal
+    #Vizkit.display planner.port("debug_goal_pose_samples"), :widget => Vizkit.default_loader.RigidBodyStateVisualization
+    #Vizkit.display planner.states
+    #Vizkit.display planner.waypoint_start
+    #Vizkit.display planner.waypoint_goal
     Vizkit.display planner.trajectory
-    Vizkit.display planner.samples
  
     Vizkit.exec
 

@@ -128,8 +128,8 @@ namespace motion_planning_libraries {
     private:        
         void createTraversabilityMap();
         
-        void createStartGoalPose(int width, int height,
-                base::samples::RigidBodyState& start, base::samples::RigidBodyState& goal);
+        void createStartGoalState(int trav_width, int trav_height,
+                State& start, State& goal);
         
         void drawCircle(envire::TraversabilityGrid* trav, unsigned int center_x, 
                 unsigned int center_y, int radius, int cost_class);
@@ -150,6 +150,9 @@ namespace motion_planning_libraries {
                 unsigned int width, unsigned int length, int cost_class);
         
         double dist(int x1, int y1, int x2, int y2);
+        
+        /** Creates a random footprint in meter with [fp_min_m,fp_max_m).  */
+        double createFootprint(double fp_min_m, double fp_max_m, double& fp_width, double& fp_length);
     };
 }
 

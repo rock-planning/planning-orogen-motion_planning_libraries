@@ -56,17 +56,14 @@ void Test::updateHook()
     envire::OrocosEmitter emitter_tmp(mpEnv, _traversability_map);
     emitter_tmp.setTime(base::Time::now());
     emitter_tmp.flush();
-   
-    int width = _traversability_map_width_m.get() / _traversability_map_scalex.get();
-    int height = _traversability_map_height_m.get() / _traversability_map_scaley.get();
 
     // Create and write start and goal pose.
-    base::samples::RigidBodyState start, goal;
-    createStartGoalPose(_traversability_map_width_m.get(), 
+    State start, goal;
+    createStartGoalState(_traversability_map_width_m.get(), 
             _traversability_map_height_m.get(), start, goal);
 
-    _start_pose_samples.write(start);
-    _goal_pose_samples.write(goal);
+    _start_state.write(start);
+    _goal_state.write(goal);
 }
 
 void Test::errorHook()
@@ -205,20 +202,25 @@ void Test::createTraversabilityMap() {
     }
 }
 
-void Test::createStartGoalPose(int width, int height,
-        base::samples::RigidBodyState& start, base::samples::RigidBodyState& goal) {
+void Test::createStartGoalState(int trav_width, int trav_height,
+        State& start, State& goal) {
     switch (_traversability_map_type.get()) {
-        case SMALL_OPENING: {
-            start = createPose(width, height, width * 0.25, height * 0.25, 180);
-            goal = createPose (width, height, width * 0.75, height * 0.75, 180);
+        case SMALL_OPENING: {    
+            start.mPose = createPose(trav_width, trav_height, trav_width * 0.25, trav_height * 0.25, 180);
+            start.mLength = _footprint_max.get();
+            start.mWidth = _footprint_max.get();
+            goal.mPose = createPose (trav_width, trav_height, trav_width * 0.75, trav_height * 0.75, 180);
+            goal.mLength = _footprint_max.get();
+            goal.mWidth = _footprint_max.get();
             break;
         }
         default: {
-           start = createPose(width, height, rand(), rand(), rand());
-           goal = createPose(width, height, rand(), rand(), rand());
+           start.mPose = createPose(trav_width, trav_height, rand(), rand(), rand());
+           createFootprint(_footprint_min.get(), _footprint_max.get(), start.mWidth, start.mLength);
+           goal.mPose = createPose(trav_width, trav_height, rand(), rand(), rand());
+           createFootprint(_footprint_min.get(), _footprint_max.get(), goal.mWidth, goal.mLength);
         }
-    }
-          
+    }       
 }
 
 base::samples::RigidBodyState Test::createPose(int width, int height, 
@@ -298,4 +300,9 @@ void Test::drawRectangle(envire::TraversabilityGrid* trav, int lowerleft_x, int 
 double Test::dist(int x1, int y1, int x2, int y2) {
     double dist = sqrt((x1 - x2)*(x1 - x2) + (y1 - y2)*(y1 - y2));
     return dist;
+}
+
+double Test::createFootprint(double fp_min_m, double fp_max_m, double& fp_width, double& fp_length) {
+    fp_width = (rand() % ((int)((fp_max_m - fp_min_m) * 1000))) / 1000.0  + fp_min_m;
+    fp_length = (rand() % ((int)((fp_max_m - fp_min_m) * 1000))) / 1000.0 + fp_min_m;
 }

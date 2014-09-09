@@ -54,20 +54,26 @@ void Task::updateHook()
         mpMotionPlanningLibraries->setTravGrid(&mEnv, _traversability_map_id);
     }
      
-    // Set start pose.
-    if(_start_pose_samples.read(mStartPose) == RTT::NewData) {
-        mpMotionPlanningLibraries->setStartState(State(mStartPose, 0.5, 0.5));
-        _debug_start_pose_samples.write(mStartPose);
+    // Set start state / pose. 
+    if(_start_state.connected()) {
+        if(_start_state.read(mStartState) == RTT::NewData) {
+            mpMotionPlanningLibraries->setStartState(mStartState);
+        }
+    } else {   
+        if(_start_pose_samples.read(mStartPose) == RTT::NewData) {
+            mpMotionPlanningLibraries->setStartState(State(mStartPose));
+        }
     }
     
-    // Set goal pose.
-    if(_goal_pose_samples.read(mGoalPose) == RTT::NewData) {
-        mpMotionPlanningLibraries->setGoalState(State(mGoalPose,0.5,0.5));
-        base::samples::RigidBodyState new_goal;
-        new_goal.position = mGoalPose.position;
-        double yaw = mGoalPose.getYaw();
-        new_goal.orientation = Eigen::AngleAxis<double>(yaw, Eigen::Vector3d::UnitZ());
-        _debug_goal_pose_samples.write(mGoalPose);
+    // Set goal state / pose.
+    if(_goal_state.connected()) {
+         if(_goal_state.read(mGoalState) == RTT::NewData) {
+            mpMotionPlanningLibraries->setGoalState(mGoalState);
+        }
+    } else {
+        if(_goal_pose_samples.read(mGoalPose) == RTT::NewData) {
+            mpMotionPlanningLibraries->setGoalState(State(mGoalPose));
+        }
     }
   
     if(!mpMotionPlanningLibraries->plan(_planning_time_sec)) {
@@ -75,11 +81,14 @@ void Task::updateHook()
     } else { 
         mpMotionPlanningLibraries->printPathInWorld();
         std::vector <base::Waypoint > path = mpMotionPlanningLibraries->getPathInWorld();
-        _path.write(path);
+        _waypoints.write(path);
 
         std::vector<base::Trajectory> vec_traj; 
         vec_traj.push_back(mpMotionPlanningLibraries->getTrajectoryInWorld(0.6));
         _trajectory.write(vec_traj);
+        
+        std::vector<struct State> states = mpMotionPlanningLibraries->getStatesInWorld();
+        _states.write(states); 
     }
 }
 void Task::errorHook()

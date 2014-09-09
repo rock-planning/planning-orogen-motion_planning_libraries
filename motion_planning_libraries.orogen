@@ -7,6 +7,7 @@ import_types_from "base"
 import_types_from "envire"	
 import_types_from "motion_planning_librariesTypes.hpp"
 import_types_from "motion_planning_libraries/Config.hpp"
+import_types_from "motion_planning_libraries/State.hpp"
 
 task_context "Task" do
     needs_configuration
@@ -23,32 +24,26 @@ task_context "Task" do
     input_port('traversability_map', ro_ptr('std/vector</envire/BinaryEvent>')).
         doc("Traversability map. Has to be received once before planning can be executed.")
 
+    input_port('start_state', '/motion_planning_libraries/State').
+        doc("Defines the start state.")
+        
+    input_port('goal_state', '/motion_planning_libraries/State').
+        doc("Defines the goal state.")
+        
     input_port('start_pose_samples', 'base/samples/RigidBodyState').
-        doc("Start pose in the world, using x and y and yaw.")
+        doc("Start pose in the world, using x and y and yaw. If the start state port is not connected this port will be used.")
         
     input_port('goal_pose_samples', 'base/samples/RigidBodyState').
-        doc("Goal pose in the world, using x and y and yaw.")
-
-    output_port('path', '/std/vector<base::Waypoint>').
-        doc "Waypoint list.."
+        doc("Goal pose in the world, using x and y and yaw. If the start state port is not connected this port will be used.")
         
-    output_port('samples', '/std/vector<base::Waypoint>').
-        doc "Contains all valid samples"
+    output_port('waypoints', '/std/vector<base::Waypoint>').
+        doc "Waypoint list."
 
     output_port("trajectory", "std::vector</base/Trajectory>").
         doc("Spline format.")
         
-    output_port('debug_start_pose_samples', 'base/samples/RigidBodyState').
-        doc("Current start position")
-        
-    output_port('debug_goal_pose_samples', 'base/samples/RigidBodyState').
-        doc("Current goal position")
-        
-    output_port('waypoint_start', 'base/Waypoint').
-        doc "Start pose converted to a waypoint."
-        
-    output_port('waypoint_goal', 'base/Waypoint').
-        doc "Goal pose converted to a waypoint."
+    output_port("states", "std::vector</motion_planning_libraries/State>").
+        doc("List of motion_planning_libraries states")
 
     #port_driven 'traversability_map', 'goal_pose_samples'
     periodic 10.0
@@ -79,15 +74,21 @@ task_context "Test" do
         doc("Height of a cell in meter.")
         
     property("opening_length", 'double', 2.0).
-        doc("Defines the length (wall runs along the y-axis) of the opening in meter for the environment SMALL_OPENING.")    
+        doc("Defines the length (wall runs along the y-axis) of the opening in meter for the environment SMALL_OPENING.")   
+        
+    property("footprint_min", 'double', 0.5).
+        doc("Smallest footprint")
+        
+    property("footprint_max", 'double', 2.0).
+        doc("Smallest footprint")
 
     output_port('traversability_map', ro_ptr('std/vector</envire/BinaryEvent>')).
-        doc("Traversability map. Has to be received once before planning can be executed.")
-
-    output_port('start_pose_samples', 'base/samples/RigidBodyState').
+        doc("Traversability map. Has to be received once before planning can be executed.")    
+        
+    output_port('start_state', '/motion_planning_libraries/State').
         doc("Start pose in the world, using x and y and yaw.")
         
-    output_port('goal_pose_samples', 'base/samples/RigidBodyState').
+    output_port('goal_state', '/motion_planning_libraries/State').
         doc("Goal pose in the world, using x and y and yaw.")
 end
 
