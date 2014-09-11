@@ -20,15 +20,16 @@ Orocos.run  'motion_planning_libraries::Task' => 'planner',
           
     planner = TaskContext::get 'planner'
     planner.traversability_map_id = "trav" 
-    planner.planning_time_sec = 10.0
+    planner.planning_time_sec = 30.0
     
     planner.config do |p|
         p.mPlanningLibType = :LIB_OMPL
         p.mEnvType = :ENV_SHERPA
-        p.mRobotWidthMinMax.first = 0.5
-        p.mRobotWidthMinMax.second = 2.0
-        p.mRobotLengthMinMax.first = 0.5
-        p.mRobotLengthMinMax.second = 2.0
+        p.mFootprintRadiusMinMax.first = 0.5
+        p.mFootprintRadiusMinMax.second = 3.0
+        p.mNumFootprintClasses = 10
+        p.mTimeToAdaptFootprint = 10
+        p.mAdaptFootprintPenalty = 0
         p.mRobotForwardVelocity = 0.8 # m/sec.
         p.mRobotBackwardVelocity = 0.4 # m/sec.
         p.mRobotRotationalVelocity = 0.05 # 0.2 # rad/sec.
@@ -58,8 +59,8 @@ Orocos.run  'motion_planning_libraries::Task' => 'planner',
     test.start
        
     test.traversability_map.connect_to(planner.traversability_map)
-    test.start_pose_samples.connect_to(planner.start_pose_samples) 
-    test.goal_pose_samples.connect_to(planner.goal_pose_samples)     
+    test.start_state.connect_to(planner.start_state) 
+    test.goal_state.connect_to(planner.goal_state)     
         
     t1 = Thread.new do
         while true do
@@ -70,8 +71,8 @@ Orocos.run  'motion_planning_libraries::Task' => 'planner',
 
     Vizkit.display planner
     Vizkit.display test.port("traversability_map")
-    Vizkit.display test.port("start_pose_samples"), :widget => Vizkit.default_loader.RigidBodyStateVisualization
-    Vizkit.display test.port("goal_pose_samples"), :widget => Vizkit.default_loader.RigidBodyStateVisualization
+    #Vizkit.display test.port("start_pose_samples"), :widget => Vizkit.default_loader.RigidBodyStateVisualization
+    #Vizkit.display test.port("goal_pose_samples"), :widget => Vizkit.default_loader.RigidBodyStateVisualization
     #Vizkit.display planner.port("debug_goal_pose_samples"), :widget => Vizkit.default_loader.RigidBodyStateVisualization
     #Vizkit.display planner.states
     #Vizkit.display planner.waypoint_start

@@ -152,7 +152,7 @@ namespace motion_planning_libraries {
         double dist(int x1, int y1, int x2, int y2);
         
         /** Creates a random footprint in meter with [fp_min_m,fp_max_m).  */
-        double createFootprint(double fp_min_m, double fp_max_m, double& fp_width, double& fp_length);
+        double createFootprint(double fp_min_m, double fp_max_m, double& fp_radius);
     };
 }
 

@@ -172,7 +172,8 @@ void Test::createTraversabilityMap() {
                 orientation = (((rand() % 360) - 180) / 180.0) * M_PI;
                 width = rand() % (int)(3 / _traversability_map_scaley.get()) + 1;
                 length = rand() % (int)(3 / _traversability_map_scalex.get()) + 1;
-                mGridCalculations.setFootprint(center_x, center_y, orientation, length, width);
+                mGridCalculations.setFootprintRectangleInGrid(length, width);
+                mGridCalculations.setFootprintPoseInGrid(center_x, center_y, orientation);
                 mGridCalculations.setValue(1); // obstacle
             }
             // 1/2 other classes 2 - 10
@@ -182,7 +183,8 @@ void Test::createTraversabilityMap() {
                 orientation = (((rand() % 360) - 180) / 180.0) * M_PI;
                 width = rand() % (int)(3 / _traversability_map_scaley.get()) + 1;
                 length = rand() % (int)(3 / _traversability_map_scalex.get()) + 1;
-                mGridCalculations.setFootprint(center_x, center_y, orientation, length, width);
+                mGridCalculations.setFootprintRectangleInGrid(length, width);
+                mGridCalculations.setFootprintPoseInGrid(center_x, center_y, orientation);
                 cost_class = rand() % 9 + 2;
                 mGridCalculations.setValue(cost_class);
             }
@@ -202,23 +204,20 @@ void Test::createTraversabilityMap() {
     }
 }
 
-void Test::createStartGoalState(int trav_width, int trav_height,
-        State& start, State& goal) {
+void Test::createStartGoalState(int trav_width, int trav_height, State& start, State& goal) {
     switch (_traversability_map_type.get()) {
         case SMALL_OPENING: {    
-            start.mPose = createPose(trav_width, trav_height, trav_width * 0.25, trav_height * 0.25, 180);
-            start.mLength = _footprint_max.get();
-            start.mWidth = _footprint_max.get();
-            goal.mPose = createPose (trav_width, trav_height, trav_width * 0.75, trav_height * 0.75, 180);
-            goal.mLength = _footprint_max.get();
-            goal.mWidth = _footprint_max.get();
+            start.setPose(createPose(trav_width, trav_height, trav_width * 0.25, trav_height * 0.25, 180));
+            start.mFootprintRadius = _footprint_max.get();
+            goal.setPose(createPose (trav_width, trav_height, trav_width * 0.75, trav_height * 0.75, 180));
+            goal.mFootprintRadius = _footprint_max.get();
             break;
         }
         default: {
            start.mPose = createPose(trav_width, trav_height, rand(), rand(), rand());
-           createFootprint(_footprint_min.get(), _footprint_max.get(), start.mWidth, start.mLength);
+           createFootprint(_footprint_min.get(), _footprint_max.get(), start.mFootprintRadius);
            goal.mPose = createPose(trav_width, trav_height, rand(), rand(), rand());
-           createFootprint(_footprint_min.get(), _footprint_max.get(), goal.mWidth, goal.mLength);
+           createFootprint(_footprint_min.get(), _footprint_max.get(), start.mFootprintRadius);
         }
     }       
 }
@@ -302,7 +301,6 @@ double Test::dist(int x1, int y1, int x2, int y2) {
     return dist;
 }
 
-double Test::createFootprint(double fp_min_m, double fp_max_m, double& fp_width, double& fp_length) {
-    fp_width = (rand() % ((int)((fp_max_m - fp_min_m) * 1000))) / 1000.0  + fp_min_m;
-    fp_length = (rand() % ((int)((fp_max_m - fp_min_m) * 1000))) / 1000.0 + fp_min_m;
+double Test::createFootprint(double fp_min_m, double fp_max_m, double& fp_radius) {
+    fp_radius = (rand() % ((int)((fp_max_m - fp_min_m) * 1000))) / 1000.0  + fp_min_m;
 }
