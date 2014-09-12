@@ -195,6 +195,15 @@ void Test::createTraversabilityMap() {
             int length_wall = (num_cells_y - _opening_length.get() / _traversability_map_scaley.get()) / 2.0;
             drawRectangle(trav, num_cells_x/2, 0,                         10, length_wall, 1); // obstacle    
             drawRectangle(trav, num_cells_x/2, num_cells_y - length_wall, 10, length_wall, 1); // obstacle 
+            
+            // Test grid calculations
+            mGridCalculations.setFootprintCircleInGrid(10);
+            mGridCalculations.setFootprintPoseInGrid(20, 20, 0);
+            mGridCalculations.setValue(1);
+            
+            mGridCalculations.setFootprintRectangleInGrid(20, 20);
+            mGridCalculations.setFootprintPoseInGrid(20, 50, 0);
+            mGridCalculations.setValue(1);
             break;
         }
         default: {
