@@ -53,6 +53,7 @@ void Test::updateHook()
    
     createTraversabilityMap();
 
+    std::cout << "Write trav map" << std::endl;
     envire::OrocosEmitter emitter_tmp(mpEnv, _traversability_map);
     emitter_tmp.setTime(base::Time::now());
     emitter_tmp.flush();
@@ -223,9 +224,9 @@ void Test::createStartGoalState(int trav_width, int trav_height, State& start, S
             break;
         }
         default: {
-           start.mPose = createPose(trav_width, trav_height, rand(), rand(), rand());
+           start.setPose(createPose(trav_width, trav_height, rand(), rand(), rand()));
            createFootprint(_footprint_min.get(), _footprint_max.get(), start.mFootprintRadius);
-           goal.mPose = createPose(trav_width, trav_height, rand(), rand(), rand());
+           goal.setPose(createPose(trav_width, trav_height, rand(), rand(), rand()));
            createFootprint(_footprint_min.get(), _footprint_max.get(), start.mFootprintRadius);
         }
     }       

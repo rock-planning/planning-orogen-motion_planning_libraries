@@ -44,6 +44,12 @@ task_context "Task" do
         
     output_port("states", "std::vector</motion_planning_libraries/State>").
         doc("List of motion_planning_libraries states")
+        
+    output_port('start_pose_samples_debug', 'base/samples/RigidBodyState').
+        doc("Currently used start pose")
+        
+    output_port('goal_pose_samples_debug', 'base/samples/RigidBodyState').
+        doc("Currently used goal pose")
 
     #port_driven 'traversability_map', 'goal_pose_samples'
     periodic 10.0

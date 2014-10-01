@@ -58,6 +58,7 @@ void Task::updateHook()
     if(_start_state.connected()) {
         if(_start_state.read(mStartState) == RTT::NewData) {
             mpMotionPlanningLibraries->setStartState(mStartState);
+            mStartPose = mStartState.mPose;
         }
     } else {   
         if(_start_pose_samples.read(mStartPose) == RTT::NewData) {
@@ -69,12 +70,16 @@ void Task::updateHook()
     if(_goal_state.connected()) {
          if(_goal_state.read(mGoalState) == RTT::NewData) {
             mpMotionPlanningLibraries->setGoalState(mGoalState);
+            mGoalPose = mGoalState.mPose;
         }
     } else {
         if(_goal_pose_samples.read(mGoalPose) == RTT::NewData) {
             mpMotionPlanningLibraries->setGoalState(State(mGoalPose));
         }
     }
+    
+    _start_pose_samples_debug.write(mStartPose);
+    _goal_pose_samples_debug.write(mGoalPose);
   
     if(!mpMotionPlanningLibraries->plan(_planning_time_sec)) {
         LOG_WARN("Planning could not be finished");
@@ -90,6 +95,7 @@ void Task::updateHook()
         std::vector<struct State> states = mpMotionPlanningLibraries->getStatesInWorld();
         _states.write(states); 
     }
+    
 }
 void Task::errorHook()
 {
