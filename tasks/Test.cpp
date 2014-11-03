@@ -122,7 +122,7 @@ void Test::createTraversabilityMap() {
     trav->setTraversabilityClass(0, envire::TraversabilityClass(0.5)); // unknown
     // class 1 (obstacle) to 10 -> driveability 0.0 to 1.0
     for(int i=0; i < 10; ++i) {  
-        trav->setTraversabilityClass(i+1, envire::TraversabilityClass(i/10.0));
+        trav->setTraversabilityClass(i+1, envire::TraversabilityClass(i/9.0));
     }
     
     // Pass trav grid to helper class.
@@ -194,6 +194,7 @@ void Test::createTraversabilityMap() {
         }
         case SMALL_OPENING: {
             int length_wall = (num_cells_y - _opening_length.get() / _traversability_map_scaley.get()) / 2.0;
+            drawRectangle(trav, 0, 0, num_cells_x, num_cells_y, 10); // free  
             drawRectangle(trav, num_cells_x/2, 0,                         10, length_wall, 1); // obstacle    
             drawRectangle(trav, num_cells_x/2, num_cells_y - length_wall, 10, length_wall, 1); // obstacle 
             
@@ -217,9 +218,9 @@ void Test::createTraversabilityMap() {
 void Test::createStartGoalState(int trav_width, int trav_height, State& start, State& goal) {
     switch (_traversability_map_type.get()) {
         case SMALL_OPENING: {    
-            start.setPose(createPose(trav_width, trav_height, trav_width * 0.25, trav_height * 0.25, 180));
+            start.setPose(createPose(trav_width, trav_height, trav_width * 0.35, trav_height * 0.25, 180));
             start.mFootprintRadius = _footprint_max.get();
-            goal.setPose(createPose (trav_width, trav_height, trav_width * 0.75, trav_height * 0.75, 180));
+            goal.setPose(createPose (trav_width, trav_height, trav_width * 0.65, trav_height * 0.75, 180));
             goal.mFootprintRadius = _footprint_max.get();
             break;
         }
