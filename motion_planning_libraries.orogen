@@ -55,7 +55,7 @@ task_context "Task" do
             :PLANNING_FAILED, :ERRONEOUS_STATES, :UNDEFINED_ERROR
         
     #port_driven 'traversability_map', 'goal_pose_samples'
-    periodic 10.0
+    periodic 1.0
 end
 
 task_context "Test" do

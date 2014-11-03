@@ -57,30 +57,35 @@ void Task::updateHook()
     // Set start state / pose. 
     if(_start_state.connected()) {
         if(_start_state.read(mStartState) == RTT::NewData) {
-            mpMotionPlanningLibraries->setStartState(mStartState);
-            mStartPose = mStartState.mPose;
+            if(mpMotionPlanningLibraries->setStartState(mStartState)) {
+                mStartPose = mStartState.mPose;
+                _start_pose_samples_debug.write(mStartPose);
+            }
         }
     } else {   
         if(_start_pose_samples.read(mStartPose) == RTT::NewData) {
-            mpMotionPlanningLibraries->setStartState(State(mStartPose));
+            if(mpMotionPlanningLibraries->setStartState(State(mStartPose))) {
+                _start_pose_samples_debug.write(mStartPose);
+            }
         }
     }
     
     // Set goal state / pose.
     if(_goal_state.connected()) {
          if(_goal_state.read(mGoalState) == RTT::NewData) {
-            mpMotionPlanningLibraries->setGoalState(mGoalState);
-            mGoalPose = mGoalState.mPose;
+            if(mpMotionPlanningLibraries->setGoalState(mGoalState)) {
+                mGoalPose = mGoalState.mPose;
+                _goal_pose_samples_debug.write(mGoalPose);
+            }
         }
     } else {
         if(_goal_pose_samples.read(mGoalPose) == RTT::NewData) {
-            mpMotionPlanningLibraries->setGoalState(State(mGoalPose));
+            if(mpMotionPlanningLibraries->setGoalState(State(mGoalPose))) {
+                _goal_pose_samples_debug.write(mGoalPose);
+            }
         }
     }
-    
-    _start_pose_samples_debug.write(mStartPose);
-    _goal_pose_samples_debug.write(mGoalPose);
-  
+
     if(!mpMotionPlanningLibraries->plan(_planning_time_sec)) {
         LOG_WARN("Planning could not be finished");
         enum MplErrors err = mpMotionPlanningLibraries->getError();
