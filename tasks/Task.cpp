@@ -83,7 +83,19 @@ void Task::updateHook()
   
     if(!mpMotionPlanningLibraries->plan(_planning_time_sec)) {
         LOG_WARN("Planning could not be finished");
-    } else { 
+        enum MplErrors err = mpMotionPlanningLibraries->getError();
+        switch(err) {
+            case MPL_ERR_MISSING_START_STATE: state(MISSING_START_STATE); break;
+            case MPL_ERR_MISSING_GOAL_STATE: state(MISSING_GOAL_STATE); break;
+            case MPL_ERR_MISSING_TRAV_GRID: 
+            case MPL_ERR_INITIALIZE_MAP: state(MISSING_TRAVERSABILITY_MAP); break;
+            case MPL_ERR_SET_STATES: 
+            case MPL_ERR_WRONG_STATE_TYPE: state(ERRONEOUS_STATES); break;
+            case MPL_ERR_PLANNING_FAILED: state(PLANNING_FAILED); break;
+            default: state(UNDEFINED_ERROR); break;
+        }
+    } else {
+        state(RUNNING);
         mpMotionPlanningLibraries->printPathInWorld();
         std::vector <base::Waypoint > path = mpMotionPlanningLibraries->getPathInWorld();
         _waypoints.write(path);
