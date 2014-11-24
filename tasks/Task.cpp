@@ -113,6 +113,16 @@ void Task::updateHook()
         _states.write(states); 
     }
     
+    // Export automatically generated SBPL motion primitives.
+    // (will be generated in SBPL+XYTHETA if no mprim file has been specified.
+    if(_config.get().mPlanningLibType == LIB_SBPL &&
+        _config.get().mEnvType == ENV_XYTHETA &&
+        _config.get().mSBPLEnvFile.empty()) {
+        struct SbplMotionPrimitives mprims;
+        if(mpMotionPlanningLibraries->getSbplMotionPrimitives(mprims)) {
+            _sbpl_mprims_debug.write(mprims);
+        }
+    }
 }
 void Task::errorHook()
 {
