@@ -314,4 +314,5 @@ double Test::dist(int x1, int y1, int x2, int y2) {
 
 double Test::createFootprint(double fp_min_m, double fp_max_m, double& fp_radius) {
     fp_radius = (rand() % ((int)((fp_max_m - fp_min_m) * 1000))) / 1000.0  + fp_min_m;
+    return fp_radius;
 }

@@ -20,28 +20,37 @@ Orocos.run  'motion_planning_libraries::Task' => 'planner',
           
     planner = TaskContext::get 'planner'
     planner.traversability_map_id = "trav" 
-    planner.planning_time_sec = 30.0
+    planner.planning_time_sec = 20.0
     
     planner.config do |p|
         p.mPlanningLibType = :LIB_SBPL
         p.mEnvType = :ENV_XYTHETA
-        p.mFootprintRadiusMinMax.first = 0.1
-        p.mFootprintRadiusMinMax.second = 0.1
+        p.mFootprintRadiusMinMax.first = 0.8
+        p.mFootprintRadiusMinMax.second = 0.8
         p.mMaxAllowedSampleDist = -1
         p.mNumFootprintClasses = 10
         p.mTimeToAdaptFootprint = 10
-        p.mAdaptFootprintPenalty = 0
-        p.mRobotForwardVelocity = 0.6 # m/sec.
-        p.mRobotBackwardVelocity = 0.2 # m/sec.
-        p.mRobotRotationalVelocity = 0.05 # 0.2 # rad/sec.
+        p.mAdaptFootprintPenalty = 2
         p.mSearchUntilFirstSolution = false
         p.mReplanDuringEachUpdate = true
         
+        p.mSpeeds.mSpeedForward = 0.6
+        p.mSpeeds.mSpeedBackward = 0.2
+        p.mSpeeds.mSpeedLateral = 0.2
+        p.mSpeeds.mSpeedTurn = 0.05
+        p.mSpeeds.mSpeedPointTurn = 0.1
+        p.mSpeeds.mMultiplierForward = 1
+        p.mSpeeds.mMultiplierBackward = 2
+        p.mSpeeds.mMultiplierLateral = 5
+        p.mSpeeds.mMultiplierTurn = 2
+        p.mSpeeds.mMultiplierPointTurn = 3
+        
         # SBPL specific configuration
         p.mSBPLEnvFile = ""
+        p.mSBPLMotionPrimitivesFile = ""
         #p.mSBPLMotionPrimitivesFile = File.join(ENV['AUTOPROJ_CURRENT_ROOT'], '/external/sbpl/matlab/mprim/pr2_10cm.mprim')
-        p.mSBPLMotionPrimitivesFile = File.join(ENV['AUTOPROJ_CURRENT_ROOT'], '/external/sbpl/matlab/mprim/output_unicycle.mprim')
-        #p.mSBPLMotionPrimitivesFile = File.join(ENV['AUTOPROJ_CURRENT_ROOT'], 'planning/motion_planning_libraries/scripts/sbpl/forklift_output.mprim')
+        #p.mSBPLMotionPrimitivesFile = File.join(ENV['AUTOPROJ_CURRENT_ROOT'], '/external/sbpl/matlab/mprim/output_unicycle.mprim')
+        #p.mSBPLMotionPrimitivesFile = File.join(ENV['AUTOPROJ_CURRENT_ROOT'], 'planning/motion_planning_libraries/scripts/sbpl/unicycle_output.mprim')
         p.mSBPLForwardSearch = false # ADPlanner throws 'g-values are non-decreasing' if true
     end
 
@@ -50,7 +59,7 @@ Orocos.run  'motion_planning_libraries::Task' => 'planner',
 
     test = TaskContext::get 'test'
     test.traversability_map_id = 'trav'
-    test.traversability_map_type = 'RANDOM_CIRCLES'
+    test.traversability_map_type = 'SMALL_OPENING'
     test.traversability_map_width_m = 120
     test.traversability_map_height_m = 10
     test.traversability_map_scalex =  0.1   
@@ -83,6 +92,7 @@ Orocos.run  'motion_planning_libraries::Task' => 'planner',
     Vizkit.display planner.trajectory
     Vizkit.display planner.start_pose_samples_debug, :widget => Vizkit.default_loader.RigidBodyStateVisualization
     Vizkit.display planner.goal_pose_samples_debug, :widget => Vizkit.default_loader.RigidBodyStateVisualization
+    Vizkit.display planner.sbpl_mprims_debug
  
     Vizkit.exec
 
