@@ -94,6 +94,23 @@ void Test::createTraversabilityMap() {
     }
     mpEnv = new envire::Environment();
     
+    // Set fix width/length for the parking space
+    double ps_x_space = 1;
+    double ps_y_space = 2;
+    int num_ps_x = 4;
+    int num_ps_y = 3;
+    double ps_width = 2; // x
+    double ps_height = 3; // y
+      
+    if(_traversability_map_type.get() == PARKING_SPACE) {
+        _traversability_map_width_m.set(num_ps_x * ps_width + 
+                (num_ps_x+1) * ps_x_space);
+        _traversability_map_height_m.set(num_ps_y * ps_height + 
+                (num_ps_y+1) * ps_y_space);
+        std::cout << "Width " << _traversability_map_width_m.get() << " meter, grid " << _traversability_map_width_m.get() / _traversability_map_scalex.get() << 
+                " Height " << _traversability_map_height_m.get() << " meter, grid " << _traversability_map_height_m.get() / _traversability_map_scaley.get() << std::endl;
+    }
+    
     envire::TraversabilityGrid* trav = new envire::TraversabilityGrid(
             (size_t)_traversability_map_width_m.get() / _traversability_map_scalex.get(), 
             (size_t)_traversability_map_height_m.get() / _traversability_map_scaley.get(), 
@@ -208,6 +225,35 @@ void Test::createTraversabilityMap() {
             mGridCalculations.setValue(1);
             break;
         }
+        
+        case PARKING_SPACE: {
+            mFreeParkingSpaces.clear();
+            mGridCalculations.setFootprintRectangleInGrid(ps_width / _traversability_map_scalex.get(),
+                    ps_height / _traversability_map_scaley.get());
+            int x_cur=0, y_cur=0;
+            int space_width_grid_ps = ps_x_space / _traversability_map_scalex.get();
+            int space_height_grid_ps = ps_y_space / _traversability_map_scaley.get();
+            int width_grid_ps = ps_width / _traversability_map_scalex.get();
+            int height_grid_ps = ps_height / _traversability_map_scaley.get();
+            int trav_class = 0;
+            for(int y=0; y < num_ps_y; y++) {
+                if (y==1) {
+                    continue;
+                }
+                for(int x=0; x < num_ps_x; x++) {
+                    x_cur = (x+1)*space_width_grid_ps + x * width_grid_ps + width_grid_ps/2.0;
+                    y_cur = (y+1)*space_height_grid_ps + y * height_grid_ps + height_grid_ps/2.0;
+                    mGridCalculations.setFootprintPoseInGrid(x_cur, y_cur, 0);
+                    trav_class = rand() % 2 ? 10 : 1;
+                    // Add to list of free parking spaces.
+                    if(trav_class != 1) {
+                        mFreeParkingSpaces.push_back(std::pair<int,int>(x_cur, y_cur));
+                        std::cout << "Add parking space " << x_cur << " " << y_cur << std::endl;
+                    }
+                    mGridCalculations.setValue(trav_class);
+                }
+            }
+        }
         default: {
             LOG_WARN("Trav map type unknown");
             break;
@@ -215,29 +261,46 @@ void Test::createTraversabilityMap() {
     }
 }
 
-void Test::createStartGoalState(int trav_width, int trav_height, State& start, State& goal) {
+void Test::createStartGoalState(int trav_width_m, int trav_height_m, State& start, State& goal) {
     switch (_traversability_map_type.get()) {
         case SMALL_OPENING: {    
-            start.setPose(createPose(trav_width, trav_height, trav_width * 0.35, trav_height * 0.25, 180));
+            start.setPose(createPose(trav_width_m, trav_height_m, trav_width_m * 0.35, trav_height_m * 0.25, 180));
             start.mFootprintRadius = _footprint_max.get();
-            goal.setPose(createPose (trav_width, trav_height, trav_width * 0.65, trav_height * 0.75, 180));
+            goal.setPose(createPose (trav_width_m, trav_height_m, trav_width_m * 0.65, trav_height_m * 0.75, 180));
+            goal.mFootprintRadius = _footprint_max.get();
+            break;
+        }
+        case PARKING_SPACE: {
+            // Creates a starting pose between the upper and lower parking spaces.
+            start.setPose(createPose(trav_width_m, trav_height_m/3, rand(), rand(), rand()));
+            start.mPose.position[1] += trav_height_m/3;
+            start.mFootprintRadius = _footprint_max.get();
+            // Uses one of the free parking spaces as a goal pose.
+            int num_free_parking_space = rand() % mFreeParkingSpaces.size();
+            int goal_x = mFreeParkingSpaces[num_free_parking_space].first;
+            int goal_y = mFreeParkingSpaces[num_free_parking_space].second;
+            std::cout << "USe parking space " << goal_x << " " << goal_y << std::endl;
+            goal.setPose(createPose (trav_width_m, trav_height_m, goal_x*mpTravGrid->getScaleX(), 
+                    goal_y*mpTravGrid->getScaleY(), rand()));
             goal.mFootprintRadius = _footprint_max.get();
             break;
         }
         default: {
-           start.setPose(createPose(trav_width, trav_height, rand(), rand(), rand()));
+           start.setPose(createPose(trav_width_m, trav_height_m, rand(), rand(), rand()));
            createFootprint(_footprint_min.get(), _footprint_max.get(), start.mFootprintRadius);
-           goal.setPose(createPose(trav_width, trav_height, rand(), rand(), rand()));
+           goal.setPose(createPose(trav_width_m, trav_height_m, rand(), rand(), rand()));
            createFootprint(_footprint_min.get(), _footprint_max.get(), start.mFootprintRadius);
+           break;
         }
     }       
 }
 
-base::samples::RigidBodyState Test::createPose(int width, int height, 
-        int x, int y, unsigned int theta_degree) {
+base::samples::RigidBodyState Test::createPose(int width_m, int height_m, 
+        int x_m, int y_m, unsigned int theta_degree) {
     base::samples::RigidBodyState rbs;
     
-    rbs.position = base::Vector3d(x % width, y % height, 0);
+    std::cout << "x y width height scalex scaley" << x_m << " " << y_m << " " << width_m << " " << height_m << " " << mpTravGrid->getScaleX() << " " << mpTravGrid->getScaleY()<< std::endl; 
+    rbs.position = base::Vector3d(x_m % width_m, y_m % height_m, 0);
     
     // Create an angle in radians from -179 to 180 (required by OMPL)
     int rot_degree = (theta_degree % 360) - 180; 
@@ -249,6 +312,8 @@ base::samples::RigidBodyState Test::createPose(int width, int height,
     rbs.orientation = Eigen::AngleAxis<double>(rot_radians, base::Vector3d(0,0,1));
     
     rbs.time = base::Time::now();
+    
+    std::cout << "RBS POSITION X Y" << rbs.position.x() << " " << rbs.position.y() << std::endl;
     
     return rbs;
 }

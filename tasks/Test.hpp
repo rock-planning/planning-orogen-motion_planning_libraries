@@ -48,6 +48,7 @@ namespace motion_planning_libraries {
         boost::shared_ptr<TravData> mpTravData;
         base::samples::RigidBodyState mRBSTravGrid;
         GridCalculations mGridCalculations;
+        std::vector< std::pair<int,int> > mFreeParkingSpaces;
 
     public:
         /** TaskContext constructor for Test
@@ -128,15 +129,16 @@ namespace motion_planning_libraries {
     private:        
         void createTraversabilityMap();
         
-        void createStartGoalState(int trav_width, int trav_height,
+        void createStartGoalState(int trav_width_m, int trav_height_m,
                 State& start, State& goal);
         
         void drawCircle(envire::TraversabilityGrid* trav, unsigned int center_x, 
                 unsigned int center_y, int radius, int cost_class);
         
         // theta: [0,360), required to pass random angles
-        base::samples::RigidBodyState createPose(int width, int height, 
-                int x, int y, unsigned int theta_degree);
+        // Grid position will be converted to world coordinates.
+        base::samples::RigidBodyState createPose(int width_m, int height_m, 
+                int x_m, int y_m, unsigned int theta_degree);
               
         /** 
          *         |    ##
