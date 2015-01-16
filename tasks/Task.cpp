@@ -48,7 +48,7 @@ void Task::updateHook()
     
     // Set traversability map.
     envire::OrocosEmitter::Ptr binary_event;
-    if(_traversability_map.read(binary_event) == RTT::NewData)
+    while(_traversability_map.read(binary_event) == RTT::NewData)
     {
         mEnv.applyEvents(*binary_event);   
         mpMotionPlanningLibraries->setTravGrid(&mEnv, _traversability_map_id);
@@ -56,14 +56,14 @@ void Task::updateHook()
      
     // Set start state / pose. 
     if(_start_state.connected()) {
-        if(_start_state.read(mStartState) == RTT::NewData) {
+        while(_start_state.read(mStartState) == RTT::NewData) {
             if(mpMotionPlanningLibraries->setStartState(mStartState)) {
                 mStartPose = mStartState.mPose;
                 _start_pose_samples_debug.write(mStartPose);
             }
         }
     } else {   
-        if(_start_pose_samples.read(mStartPose) == RTT::NewData) {
+        while(_start_pose_samples.read(mStartPose) == RTT::NewData) {
             if(mpMotionPlanningLibraries->setStartState(State(mStartPose))) {
                 _start_pose_samples_debug.write(mStartPose);
             }
@@ -72,14 +72,14 @@ void Task::updateHook()
     
     // Set goal state / pose.
     if(_goal_state.connected()) {
-         if(_goal_state.read(mGoalState) == RTT::NewData) {
+         while(_goal_state.read(mGoalState) == RTT::NewData) {
             if(mpMotionPlanningLibraries->setGoalState(mGoalState)) {
                 mGoalPose = mGoalState.mPose;
                 _goal_pose_samples_debug.write(mGoalPose);
             }
         }
     } else {
-        if(_goal_pose_samples.read(mGoalPose) == RTT::NewData) {
+        while(_goal_pose_samples.read(mGoalPose) == RTT::NewData) {
             if(mpMotionPlanningLibraries->setGoalState(State(mGoalPose))) {
                 _goal_pose_samples_debug.write(mGoalPose);
             }
