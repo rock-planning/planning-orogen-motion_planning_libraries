@@ -249,8 +249,9 @@ void Test::createTraversabilityMap() {
                     if(trav_class != 1) {
                         mFreeParkingSpaces.push_back(std::pair<int,int>(x_cur, y_cur));
                         std::cout << "Add parking space " << x_cur << " " << y_cur << std::endl;
+                    } else {
+                        mGridCalculations.setValue(trav_class);
                     }
-                    mGridCalculations.setValue(trav_class);
                 }
             }
         }
@@ -281,7 +282,7 @@ void Test::createStartGoalState(int trav_width_m, int trav_height_m, State& star
             int goal_y = mFreeParkingSpaces[num_free_parking_space].second;
             std::cout << "USe parking space " << goal_x << " " << goal_y << std::endl;
             goal.setPose(createPose (trav_width_m, trav_height_m, goal_x*mpTravGrid->getScaleX(), 
-                    goal_y*mpTravGrid->getScaleY(), rand()));
+                    goal_y*mpTravGrid->getScaleY(), 90));
             goal.mFootprintRadius = _footprint_max.get();
             break;
         }
