@@ -25,25 +25,27 @@ Orocos.run  'motion_planning_libraries::Task' => 'planner',
     planner.config do |p|
         p.mPlanningLibType = :LIB_SBPL
         p.mEnvType = :ENV_XYTHETA
-        p.mFootprintRadiusMinMax.first = 0.8
-        p.mFootprintRadiusMinMax.second = 0.8
+        p.mFootprintRadiusMinMax.first = 0.5
+        p.mFootprintRadiusMinMax.second = 0.5
         p.mMaxAllowedSampleDist = -1
         p.mNumFootprintClasses = 10
         p.mTimeToAdaptFootprint = 10
         p.mAdaptFootprintPenalty = 2
         p.mSearchUntilFirstSolution = false
         p.mReplanDuringEachUpdate = true
+        p.mUseIntermediatePoints = false
         
-        p.mSpeeds.mSpeedForward = 0.6
-        p.mSpeeds.mSpeedBackward = 0.2
-        p.mSpeeds.mSpeedLateral = 0.2
-        p.mSpeeds.mSpeedTurn = 0.05
-        p.mSpeeds.mSpeedPointTurn = 0.1
+        # EO2
+        p.mSpeeds.mSpeedForward = 1.0
+        p.mSpeeds.mSpeedBackward = 0.8
+        p.mSpeeds.mSpeedLateral = 0.0
+        p.mSpeeds.mSpeedTurn = 0.4
+        p.mSpeeds.mSpeedPointTurn = 0.0
         p.mSpeeds.mMultiplierForward = 1
-        p.mSpeeds.mMultiplierBackward = 2
-        p.mSpeeds.mMultiplierLateral = 5
+        p.mSpeeds.mMultiplierBackward = 5
+        p.mSpeeds.mMultiplierLateral = 10
         p.mSpeeds.mMultiplierTurn = 2
-        p.mSpeeds.mMultiplierPointTurn = 3
+        p.mSpeeds.mMultiplierPointTurn = 8
         
         # SBPL specific configuration
         p.mSBPLEnvFile = ""
@@ -59,7 +61,7 @@ Orocos.run  'motion_planning_libraries::Task' => 'planner',
 
     test = TaskContext::get 'test'
     test.traversability_map_id = 'trav'
-    test.traversability_map_type = 'PARKING_SPACE'
+    test.traversability_map_type = 'RANDOM_CIRCLES'
     test.traversability_map_width_m = 120
     test.traversability_map_height_m = 10
     test.traversability_map_scalex =  0.1   
