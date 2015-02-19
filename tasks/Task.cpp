@@ -105,8 +105,8 @@ void Task::updateHook()
         std::vector <base::Waypoint > path = mpMotionPlanningLibraries->getPathInWorld();
         _waypoints.write(path);
 
-        std::vector<base::Trajectory> vec_traj; 
-        vec_traj.push_back(mpMotionPlanningLibraries->getTrajectoryInWorld(0.6));
+        std::vector<base::Trajectory> vec_traj = 
+                mpMotionPlanningLibraries->getTrajectoryInWorld(_trajectory_speed.get());
         _trajectory.write(vec_traj);
         
         std::vector<struct State> states = mpMotionPlanningLibraries->getStatesInWorld();

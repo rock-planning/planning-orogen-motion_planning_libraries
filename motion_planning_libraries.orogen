@@ -21,6 +21,9 @@ task_context "Task" do
     
     property("planning_time_sec", "double", 10).
         doc("Maximal allowed planning time per cycle.")
+        
+    property("trajectory_speed", "double", 0.5).
+        doc("Defines the overall speed of the trajectory. This property is not used if the planner calculates the speeds (e.g. LIB_SBPL ENV_XYTHETA)")
 
     input_port('traversability_map', ro_ptr('std/vector</envire/BinaryEvent>')).
         doc("Traversability map. Has to be received once before planning can be executed.")
