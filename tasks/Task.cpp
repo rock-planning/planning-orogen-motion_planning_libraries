@@ -48,22 +48,27 @@ void Task::updateHook()
     
     // Set traversability map.
     envire::OrocosEmitter::Ptr binary_event;
+    // Use a loop here because binary_events could contain partial updates
+    bool new_map = false;
     while(_traversability_map.read(binary_event) == RTT::NewData)
     {
         mEnv.applyEvents(*binary_event);   
+        new_map = true;
+    }
+    if(new_map) {
         mpMotionPlanningLibraries->setTravGrid(&mEnv, _traversability_map_id);
     }
      
     // Set start state / pose. 
     if(_start_state.connected()) {
-        while(_start_state.read(mStartState) == RTT::NewData) {
+        if(_start_state.readNewest(mStartState) == RTT::NewData) {
             if(mpMotionPlanningLibraries->setStartState(mStartState)) {
                 mStartPose = mStartState.mPose;
                 _start_pose_samples_debug.write(mStartPose);
             }
         }
     } else {   
-        while(_start_pose_samples.read(mStartPose) == RTT::NewData) {
+        if(_start_pose_samples.readNewest(mStartPose) == RTT::NewData) {
             if(mpMotionPlanningLibraries->setStartState(State(mStartPose))) {
                 _start_pose_samples_debug.write(mStartPose);
             }
@@ -72,14 +77,14 @@ void Task::updateHook()
     
     // Set goal state / pose.
     if(_goal_state.connected()) {
-         while(_goal_state.read(mGoalState) == RTT::NewData) {
+         if(_goal_state.readNewest(mGoalState) == RTT::NewData) {
             if(mpMotionPlanningLibraries->setGoalState(mGoalState)) {
                 mGoalPose = mGoalState.mPose;
                 _goal_pose_samples_debug.write(mGoalPose);
             }
         }
     } else {
-        while(_goal_pose_samples.read(mGoalPose) == RTT::NewData) {
+        if(_goal_pose_samples.readNewest(mGoalPose) == RTT::NewData) {
             if(mpMotionPlanningLibraries->setGoalState(State(mGoalPose))) {
                 _goal_pose_samples_debug.write(mGoalPose);
             }
@@ -90,13 +95,17 @@ void Task::updateHook()
         LOG_WARN("Planning could not be finished");
         enum MplErrors err = mpMotionPlanningLibraries->getError();
         switch(err) {
-            case MPL_ERR_MISSING_START_STATE: state(MISSING_START_STATE); break;
-            case MPL_ERR_MISSING_GOAL_STATE: state(MISSING_GOAL_STATE); break;
-            case MPL_ERR_MISSING_TRAV_GRID: 
-            case MPL_ERR_INITIALIZE_MAP: state(MISSING_TRAVERSABILITY_MAP); break;
-            case MPL_ERR_SET_STATES: 
-            case MPL_ERR_WRONG_STATE_TYPE: state(ERRONEOUS_STATES); break;
+            case MPL_ERR_MISSING_START: state(MISSING_START); break;
+            case MPL_ERR_MISSING_GOAL: state(MISSING_GOAL); break;
+            case MPL_ERR_MISSING_TRAV: state(MISSING_TRAV); break;
+            case MPL_ERR_MISSING_START_GOAL: state(MISSING_START_GOAL); break;
+            case MPL_ERR_MISSING_START_TRAV: state(MISSING_START_TRAV); break;
+            case MPL_ERR_MISSING_GOAL_TRAV: state(MISSING_GOAL_TRAV); break;
+            case MPL_ERR_MISSING_START_GOAL_TRAV: state(MISSING_START_GOAL_TRAV); break;
             case MPL_ERR_PLANNING_FAILED: state(PLANNING_FAILED); break;
+            case MPL_ERR_WRONG_STATE_TYPE: state(WRONG_STATE_TYPE); break;
+            case MPL_ERR_INITIALIZE_MAP: state(INITIALIZE_MAP_ERROR); break;
+            case MPL_ERR_SET_START_GOAL: state(SET_START_GOAL_ERROR); break;
             default: state(UNDEFINED_ERROR); break;
         }
     } else {

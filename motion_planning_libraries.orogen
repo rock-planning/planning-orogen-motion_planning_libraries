@@ -58,8 +58,18 @@ task_context "Task" do
     output_port('sbpl_mprims_debug', '/motion_planning_libraries/SbplMotionPrimitives'). 
         doc("Currently used goal pose")
 
-    runtime_states :MISSING_START_STATE, :MISSING_GOAL_STATE, :MISSING_TRAVERSABILITY_MAP, 
-            :PLANNING_FAILED, :ERRONEOUS_STATES, :UNDEFINED_ERROR
+    runtime_states :MISSING_START, 
+            :MISSING_GOAL, 
+            :MISSING_TRAV, 
+            :MISSING_START_GOAL,
+            :MISSING_START_TRAV,
+            :MISSING_GOAL_TRAV,
+            :MISSING_START_GOAL_TRAV,
+            :PLANNING_FAILED, 
+            :WRONG_STATE_TYPE,
+            :INITIALIZE_MAP_ERROR,
+            :SET_START_GOAL_ERROR,
+            :UNDEFINED_ERROR
         
     #port_driven 'traversability_map', 'goal_pose_samples'
     periodic 1.0
