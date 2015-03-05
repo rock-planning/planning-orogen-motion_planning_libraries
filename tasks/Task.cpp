@@ -110,16 +110,39 @@ void Task::updateHook()
         }
     } else {
         state(RUNNING);
-        //mpMotionPlanningLibraries->printPathInWorld();
+       
+        // Compare new and old path and just publish and print path if its new.
         std::vector <base::Waypoint > path = mpMotionPlanningLibraries->getPathInWorld();
-        _waypoints.write(path);
-
-        std::vector<base::Trajectory> vec_traj = 
-                mpMotionPlanningLibraries->getTrajectoryInWorld(_trajectory_speed.get());
-        _trajectory.write(vec_traj);
         
-        std::vector<struct State> states = mpMotionPlanningLibraries->getStatesInWorld();
-        _states.write(states); 
+        bool new_path = false;
+        if(path.size() != mLastPath.size()) {
+            new_path = true;
+        } else {
+            std::vector <base::Waypoint >::iterator it_new = path.begin();
+            std::vector <base::Waypoint >::iterator it_last = mLastPath.begin();
+            for(; it_new < path.end() && it_last < mLastPath.end(); it_new++, it_last++) {
+                if(it_new->position != it_last->position || 
+                    it_new->heading != it_last->heading) {
+                    new_path = true;
+                    break;
+                }
+            }
+        }
+        mLastPath = path;
+        
+        if(new_path) {
+            LOG_INFO("New path received");
+             mpMotionPlanningLibraries->printPathInWorld();
+             
+            _waypoints.write(path);
+
+            std::vector<base::Trajectory> vec_traj = 
+                    mpMotionPlanningLibraries->getTrajectoryInWorld(_trajectory_speed.get());
+            _trajectory.write(vec_traj);
+            
+            std::vector<struct State> states = mpMotionPlanningLibraries->getStatesInWorld();
+            _states.write(states); 
+        }
     }
     
     // Export automatically generated SBPL motion primitives.

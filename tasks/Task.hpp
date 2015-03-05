@@ -23,6 +23,7 @@ namespace motion_planning_libraries {
         base::samples::RigidBodyState mGoalPose;
         State mStartState;
         State mGoalState;
+        std::vector <base::Waypoint > mLastPath;
 
     public:
         /** TaskContext constructor for Task
