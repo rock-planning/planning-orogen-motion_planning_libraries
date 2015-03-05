@@ -40,16 +40,16 @@ Orocos.run  'motion_planning_libraries::Task' => 'planner',
         p.mNumPrimPartition = 2
         
         # EO2
-        p.mSpeeds.mSpeedForward = 1.0
-        p.mSpeeds.mSpeedBackward = 0.8
+        p.mSpeeds.mSpeedForward = 0.12
+        p.mSpeeds.mSpeedBackward = 0.00
         p.mSpeeds.mSpeedLateral = 0.0
-        p.mSpeeds.mSpeedTurn = 0.3
-        p.mSpeeds.mSpeedPointTurn = 0.0
+        p.mSpeeds.mSpeedTurn = 0.1
+        p.mSpeeds.mSpeedPointTurn = 0.0 # 0.15
         p.mSpeeds.mMultiplierForward = 1
-        p.mSpeeds.mMultiplierBackward = 5
-        p.mSpeeds.mMultiplierLateral = 10
+        p.mSpeeds.mMultiplierBackward = 4
+        p.mSpeeds.mMultiplierLateral = 3
         p.mSpeeds.mMultiplierTurn = 2
-        p.mSpeeds.mMultiplierPointTurn = 8
+        p.mSpeeds.mMultiplierPointTurn = 5
         
         # SBPL specific configuration
         p.mSBPLEnvFile = ""
@@ -65,7 +65,7 @@ Orocos.run  'motion_planning_libraries::Task' => 'planner',
 
     test = TaskContext::get 'test'
     test.traversability_map_id = 'trav'
-    test.traversability_map_type = 'PARKING_SPACE'
+    test.traversability_map_type = 'RANDOM_CIRCLES'
     test.traversability_map_width_m = 120
     test.traversability_map_height_m = 10
     test.traversability_map_scalex =  0.1   
