@@ -110,7 +110,7 @@ void Task::updateHook()
         }
     } else {
         state(RUNNING);
-        mpMotionPlanningLibraries->printPathInWorld();
+        //mpMotionPlanningLibraries->printPathInWorld();
         std::vector <base::Waypoint > path = mpMotionPlanningLibraries->getPathInWorld();
         _waypoints.write(path);
 
