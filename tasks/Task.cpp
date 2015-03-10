@@ -57,6 +57,9 @@ void Task::updateHook()
     }
     if(new_map) {
         mpMotionPlanningLibraries->setTravGrid(&mEnv, _traversability_map_id);
+        // Just wait some time for a new goal pose in case both
+        // map and new goal have been sent together.
+        sleep(1);
     }
      
     // Set start state / pose. 
