@@ -94,7 +94,8 @@ void Task::updateHook()
         }
     }
 
-    if(!mpMotionPlanningLibraries->plan(_planning_time_sec)) {
+    double cost = 0.0;
+    if(!mpMotionPlanningLibraries->plan(_planning_time_sec, cost)) {
         LOG_WARN("Planning could not be finished");
         enum MplErrors err = mpMotionPlanningLibraries->getError();
         switch(err) {
@@ -145,6 +146,8 @@ void Task::updateHook()
             
             std::vector<struct State> states = mpMotionPlanningLibraries->getStatesInWorld();
             _states.write(states); 
+            
+            _path_cost.write(cost);
         }
     }
     
