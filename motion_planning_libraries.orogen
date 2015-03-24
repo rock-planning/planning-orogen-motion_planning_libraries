@@ -72,6 +72,9 @@ task_context "Task" do
             :WRONG_STATE_TYPE,
             :INITIALIZE_MAP_ERROR,
             :SET_START_GOAL_ERROR,
+            :START_ON_OBSTACLE,
+            :GOAL_ON_OBSTACLE,
+            :START_GOAL_ON_OBSTACLE,
             :UNDEFINED_ERROR
         
     #port_driven 'traversability_map', 'goal_pose_samples'

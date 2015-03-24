@@ -109,6 +109,9 @@ void Task::updateHook()
             case MPL_ERR_PLANNING_FAILED: state(PLANNING_FAILED); break;
             case MPL_ERR_WRONG_STATE_TYPE: state(WRONG_STATE_TYPE); break;
             case MPL_ERR_INITIALIZE_MAP: state(INITIALIZE_MAP_ERROR); break;
+            case MPL_ERR_START_ON_OBSTACLE: state(START_ON_OBSTACLE); break;
+            case MPL_ERR_GOAL_ON_OBSTACLE: state(GOAL_ON_OBSTACLE); break;
+            case MPL_ERR_START_GOAL_ON_OBSTACLE: state(START_GOAL_ON_OBSTACLE); break;
             case MPL_ERR_SET_START_GOAL: state(SET_START_GOAL_ERROR); break;
             default: state(UNDEFINED_ERROR); break;
         }
