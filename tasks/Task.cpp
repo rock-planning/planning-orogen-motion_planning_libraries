@@ -99,6 +99,8 @@ void Task::updateHook()
         LOG_WARN("Planning could not be finished");
         enum MplErrors err = mpMotionPlanningLibraries->getError();
         switch(err) {
+            case MPL_ERR_NONE: break; // Does not change the current state.
+            case MPL_ERR_REPLANNING_NOT_REQUIRED: break; // Does not change the current state.
             case MPL_ERR_MISSING_START: state(MISSING_START); break;
             case MPL_ERR_MISSING_GOAL: state(MISSING_GOAL); break;
             case MPL_ERR_MISSING_TRAV: state(MISSING_TRAV); break;
@@ -114,6 +116,12 @@ void Task::updateHook()
             case MPL_ERR_START_GOAL_ON_OBSTACLE: state(START_GOAL_ON_OBSTACLE); break;
             case MPL_ERR_SET_START_GOAL: state(SET_START_GOAL_ERROR); break;
             default: state(UNDEFINED_ERROR); break;
+        }
+        
+        // In case of a real error an ewmpty trajectory will be sent.
+        if(err != MPL_ERR_NONE && err != MPL_ERR_REPLANNING_NOT_REQUIRED) {
+            std::vector<base::Trajectory> empty_trajectories;
+            _trajectory.write(empty_trajectories);
         }
     } else {
         state(RUNNING);
