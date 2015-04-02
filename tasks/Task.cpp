@@ -123,6 +123,15 @@ void Task::updateHook()
             std::vector<base::Trajectory> empty_trajectories;
             _trajectory.write(empty_trajectories);
         }
+        
+        if(err == MPL_ERR_START_ON_OBSTACLE || err == MPL_ERR_START_GOAL_ON_OBSTACLE) {
+            LOG_INFO("Start state lies on an obstacle, tries to generate an escape trajectory");
+            if(generateEscapeTrajectory()) {
+                LOG_INFO("Escape trajectory could be created");
+            } else {
+                LOG_WARN("Escape trajectory could not be created");
+            }
+        }
     } else {
         state(RUNNING);
        
@@ -173,15 +182,32 @@ void Task::updateHook()
         }
     }
 }
+
 void Task::errorHook()
 {
     TaskBase::errorHook();
 }
+
 void Task::stopHook()
 {
     TaskBase::stopHook();
 }
+
 void Task::cleanupHook()
 {
     TaskBase::cleanupHook();
+}
+
+bool Task::generateEscapeTrajectory() {
+    if(mpMotionPlanningLibraries) {
+        std::vector<base::Trajectory> escape_traj = 
+                mpMotionPlanningLibraries->getEscapeTrajectoryInWorld();
+        if(escape_traj.size() == 0) {
+            LOG_WARN("Empty escape trajectory recieved");
+            return false;
+        }
+        _escape_trajectory.write(escape_traj);
+    }
+    LOG_WARN("Motion planning library has not been created yet");
+    return false;
 }

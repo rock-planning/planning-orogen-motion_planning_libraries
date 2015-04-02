@@ -15,13 +15,13 @@
 using namespace motion_planning_libraries;
 
 Test::Test(std::string const& name)
-    : TestBase(name), mpEnv(NULL), mpFrameNode(NULL), mpTravGrid(NULL)
+    : TestBase(name), mpEnv(NULL), mpFrameNode(NULL), mpTravGrid(NULL), mCounter(0), mFirstUpdate(true)
 {
     srand (time(NULL));
 }
 
 Test::Test(std::string const& name, RTT::ExecutionEngine* engine)
-    : TestBase(name, engine), mpFrameNode(NULL), mpTravGrid(NULL)
+    : TestBase(name, engine), mpFrameNode(NULL), mpTravGrid(NULL), mCounter(0), mFirstUpdate(true)
 {
 }
 
@@ -49,8 +49,16 @@ bool Test::startHook()
 
 void Test::updateHook()
 {
+    if(mFirstUpdate) { // ignore!
+        std::cout << "FIRST CALL UPDATE" << std::endl;
+        mFirstUpdate = false;
+        return;
+    } else {
+        std::cout << "NEXT CALL UPDATE" << std::endl;
+    }
+    
     TestBase::updateHook();
-   
+    
     createTraversabilityMap();
 
     std::cout << "Write trav map" << std::endl;
@@ -59,12 +67,14 @@ void Test::updateHook()
     emitter_tmp.flush();
 
     // Create and write start and goal pose.
-    State start, goal;
     createStartGoalState(_traversability_map_width_m.get(), 
-            _traversability_map_height_m.get(), start, goal);
+            _traversability_map_height_m.get(), mStart, mGoal);
 
-    _start_state.write(start);
-    _goal_state.write(goal);
+    _start_state.write(mStart);
+    _goal_state.write(mGoal);
+
+    printf("COUNTER %d\n", mCounter);
+    mCounter++;
 }
 
 void Test::errorHook()
@@ -255,6 +265,16 @@ void Test::createTraversabilityMap() {
                 }
             }
         }
+        case ESCAPE_TRAJECTORY: {
+            if(mCounter%2) {
+                // Creates an obstacle on the starting pose.
+                mGridCalculations.setFootprintCircleInGrid(10);
+                mGridCalculations.setFootprintPoseInGrid(10 / _traversability_map_scalex.get(), 
+                        5 / _traversability_map_scaley.get(), 0);
+                mGridCalculations.setValue(1);
+            }
+            break;
+        }
         default: {
             LOG_WARN("Trav map type unknown");
             break;
@@ -280,10 +300,24 @@ void Test::createStartGoalState(int trav_width_m, int trav_height_m, State& star
             int num_free_parking_space = rand() % mFreeParkingSpaces.size();
             int goal_x = mFreeParkingSpaces[num_free_parking_space].first;
             int goal_y = mFreeParkingSpaces[num_free_parking_space].second;
-            std::cout << "USe parking space " << goal_x << " " << goal_y << std::endl;
+            std::cout << "Use parking space " << goal_x << " " << goal_y << std::endl;
             goal.setPose(createPose (trav_width_m, trav_height_m, goal_x*mpTravGrid->getScaleX(), 
                     goal_y*mpTravGrid->getScaleY(), 90));
             goal.mFootprintRadius = _footprint_max.get();
+            break;
+        }
+        case ESCAPE_TRAJECTORY: {
+            double last_start_angle = (mStart.getPose().getYaw() / M_PI) * 180.0;
+            double last_goal_angle = (mGoal.getPose().getYaw() / M_PI) * 180.0;
+            if(mCounter%2) {
+                printf("2 Current start and goal angle %4.2f %4.2f", mStart.getPose().getYaw(), mGoal.getPose().getYaw());
+                start.setPose(createPose(trav_width_m, trav_height_m, 10, 5, last_goal_angle));
+                goal.setPose(createPose(trav_width_m, trav_height_m, 5, 5, last_start_angle));
+            } else {
+                start.setPose(createPose(trav_width_m, trav_height_m, 5, 5, rand()));
+                goal.setPose(createPose(trav_width_m, trav_height_m, 10, 5, rand()));
+                printf("1 Set start and goal angle %4.2f %4.2f", mStart.getPose().getYaw(), mGoal.getPose().getYaw());
+            }
             break;
         }
         default: {
@@ -297,18 +331,19 @@ void Test::createStartGoalState(int trav_width_m, int trav_height_m, State& star
 }
 
 base::samples::RigidBodyState Test::createPose(int width_m, int height_m, 
-        int x_m, int y_m, unsigned int theta_degree) {
+        int x_m, int y_m, double theta_degree) {
     base::samples::RigidBodyState rbs;
     
-    std::cout << "x y width height scalex scaley" << x_m << " " << y_m << " " << width_m << " " << height_m << " " << mpTravGrid->getScaleX() << " " << mpTravGrid->getScaleY()<< std::endl; 
     rbs.position = base::Vector3d(x_m % width_m, y_m % height_m, 0);
     
     // Create an angle in radians from -179 to 180 (required by OMPL)
-    int rot_degree = (theta_degree % 360) - 180; 
-    if(rot_degree == -180) {
-        rot_degree = 180;
+    while(theta_degree >= 180) {
+        theta_degree -= 360;
     }
-    double rot_radians = (rot_degree / 180.0) * M_PI;
+    while(theta_degree < 180) {
+        theta_degree += 360;
+    }
+    double rot_radians = (theta_degree / 180.0) * M_PI;
     std::cout << "Rot radians " << rot_radians << std::endl;
     rbs.orientation = Eigen::AngleAxis<double>(rot_radians, base::Vector3d(0,0,1));
     

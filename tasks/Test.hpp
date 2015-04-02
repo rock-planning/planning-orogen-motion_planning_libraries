@@ -49,6 +49,9 @@ namespace motion_planning_libraries {
         base::samples::RigidBodyState mRBSTravGrid;
         GridCalculations mGridCalculations;
         std::vector< std::pair<int,int> > mFreeParkingSpaces;
+        int mCounter; // Counts once per update.
+        State mStart, mGoal;
+        bool mFirstUpdate;
 
     public:
         /** TaskContext constructor for Test
@@ -138,7 +141,7 @@ namespace motion_planning_libraries {
         // theta: [0,360), required to pass random angles
         // Grid position will be converted to world coordinates.
         base::samples::RigidBodyState createPose(int width_m, int height_m, 
-                int x_m, int y_m, unsigned int theta_degree);
+                int x_m, int y_m, double theta_degree);
               
         /** 
          *         |    ##

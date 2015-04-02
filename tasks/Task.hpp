@@ -41,7 +41,7 @@ namespace motion_planning_libraries {
 
         /** Default deconstructor of Task
          */
-	~Task();
+        ~Task();
 
         /** This hook is called by Orocos when the state machine transitions
          * from PreOperational to Stopped. If it returns false, then the
@@ -100,6 +100,8 @@ namespace motion_planning_libraries {
          * before calling start() again.
          */
         void cleanupHook();
+        
+        bool generateEscapeTrajectory();
     };
 }
 

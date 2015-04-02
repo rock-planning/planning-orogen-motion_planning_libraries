@@ -24,6 +24,10 @@ task_context "Task" do
         
     property("trajectory_speed", "double", 0.5).
         doc("Defines the overall speed of the trajectory. This property is not used if the planner calculates the speeds (e.g. LIB_SBPL ENV_XYTHETA)")
+        
+    operation("generateEscapeTrajectory").
+        returns('bool').
+        doc("Uses the last trajectory to create and send an escape trajectory (see port escape_trajectory)")
 
     input_port('traversability_map', ro_ptr('std/vector</envire/BinaryEvent>')).
         doc("Traversability map. Has to be received once before planning can be executed.")
@@ -60,6 +64,9 @@ task_context "Task" do
         
     output_port('path_cost', 'double'). 
         doc("If available cost of the planned path, otherwise nan")
+        
+    output_port("escape_trajectory", "std::vector</base/Trajectory>").
+        doc("If the start pose lies on an obstacle this port can be used to receive an escape trajectoy")
 
     runtime_states :MISSING_START, 
             :MISSING_GOAL, 
