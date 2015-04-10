@@ -101,7 +101,13 @@ namespace motion_planning_libraries {
          */
         void cleanupHook();
         
-        bool generateEscapeTrajectory();
+        /**
+         * Can be used if the system touches an obstacle to create a path
+         * back to a area without any obstacles. This requires an already
+         * planned path, otherwise an empty trajectory will be returned.
+         * The esacpe trajectory is written to the port 'escape_trajectory'.
+         */
+        bool generateEscapeTrajectory();   
     };
 }
 

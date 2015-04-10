@@ -1,7 +1,8 @@
 <package>
   <description brief="Collection of motion planning libraries">
   </description>
-  <author>Stefan/stefan.haase@dfki.de</author>
+  <author>Stefan Haase/stefan.haase@dfki.de</author>
+  <maintainer>Stefan Haase/stefan.haase@dfki.de</maintainer>
   <license></license>
   <url>http://</url>
   <logo>http://</logo>

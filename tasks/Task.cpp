@@ -96,8 +96,10 @@ void Task::updateHook()
 
     double cost = 0.0;
     if(!mpMotionPlanningLibraries->plan(_planning_time_sec, cost)) {
-        LOG_WARN("Planning could not be finished");
         enum MplErrors err = mpMotionPlanningLibraries->getError();
+        if(err != MPL_ERR_NONE && err != MPL_ERR_REPLANNING_NOT_REQUIRED) {
+            LOG_WARN("Planning could not be finished");
+        }
         switch(err) {
             case MPL_ERR_NONE: break; // Does not change the current state.
             case MPL_ERR_REPLANNING_NOT_REQUIRED: break; // Does not change the current state.

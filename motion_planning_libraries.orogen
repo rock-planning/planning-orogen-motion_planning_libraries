@@ -66,7 +66,7 @@ task_context "Task" do
         doc("If available cost of the planned path, otherwise nan")
         
     output_port("escape_trajectory", "std::vector</base/Trajectory>").
-        doc("If the start pose lies on an obstacle this port can be used to receive an escape trajectoy")
+        doc("The operation generateEscapeTrajectory() writes the escape trajectory to this port")
 
     runtime_states :MISSING_START, 
             :MISSING_GOAL, 

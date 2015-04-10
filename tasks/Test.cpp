@@ -264,6 +264,7 @@ void Test::createTraversabilityMap() {
                     }
                 }
             }
+            break;
         }
         case ESCAPE_TRAJECTORY: {
             if(mCounter%2) {
