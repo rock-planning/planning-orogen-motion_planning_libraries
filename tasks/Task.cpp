@@ -120,7 +120,7 @@ void Task::updateHook()
             default: state(UNDEFINED_ERROR); break;
         }
         
-        // In case of a real error an ewmpty trajectory will be sent.
+        // In case of a real error an empty trajectory will be sent.
         if(err != MPL_ERR_NONE && err != MPL_ERR_REPLANNING_NOT_REQUIRED) {
             std::vector<base::Trajectory> empty_trajectories;
             _trajectory.write(empty_trajectories);
@@ -135,6 +135,7 @@ void Task::updateHook()
             }
         }
     } else {
+        state(PLANNING_SUCCESSFUL);
         state(RUNNING);
        
         // Compare new and old path and just publish and print path if its new.
@@ -173,8 +174,8 @@ void Task::updateHook()
         }
     }
     
-    // Export automatically generated SBPL motion primitives.
-    // (will be generated in SBPL+XYTHETA if no mprim file has been specified.
+    // Export automatically generated SBPL motion primitives
+    // (will be generated in SBPL+XYTHETA if no mprim file has been specified).
     if(_config.get().mPlanningLibType == LIB_SBPL &&
         _config.get().mEnvType == ENV_XYTHETA &&
         _config.get().mSBPLEnvFile.empty()) {

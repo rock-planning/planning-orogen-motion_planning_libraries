@@ -76,6 +76,7 @@ task_context "Task" do
             :MISSING_GOAL_TRAV,
             :MISSING_START_GOAL_TRAV,
             :PLANNING_FAILED, 
+            :PLANNING_SUCCESSFUL,
             :WRONG_STATE_TYPE,
             :INITIALIZE_MAP_ERROR,
             :SET_START_GOAL_ERROR,
