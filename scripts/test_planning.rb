@@ -36,20 +36,19 @@ Orocos.run  'motion_planning_libraries::Task' => 'planner',
         p.mAdaptFootprintPenalty = 2
         p.mSearchUntilFirstSolution = false
         p.mReplanDuringEachUpdate = false
-        p.mNumIntermediatePoints = 2
-        p.mNumPrimPartition = 2
+        p.mNumIntermediatePoints = 8
+        p.mNumPrimPartition = 8
+        p.mPrimAccuracy = 0.15
         
         # EO2
-        p.mSpeeds.mSpeedForward = 0.12
-        p.mSpeeds.mSpeedBackward = 0.00
-        p.mSpeeds.mSpeedLateral = 0.0
-        p.mSpeeds.mSpeedTurn = 0.06
-        p.mSpeeds.mSpeedPointTurn = 0.0 # 0.15
-        p.mSpeeds.mMultiplierForward = 1
-        p.mSpeeds.mMultiplierBackward = 4
-        p.mSpeeds.mMultiplierLateral = 5
-        p.mSpeeds.mMultiplierTurn = 2
-        p.mSpeeds.mMultiplierPointTurn = 5
+        p.mMobility.mSpeed = 0.1
+        p.mMobility.mTurningSpeed = 0.15
+        p.mMobility.mMultiplierForward = 1
+        p.mMobility.mMultiplierBackward = 0
+        p.mMobility.mMultiplierLateral = 0
+        p.mMobility.mMultiplierForwardTurn = 2
+        p.mMobility.mMultiplierPointTurn = 0
+        p.mMobility.mMinTurningRadius = 1.0
         
         # SBPL specific configuration
         p.mSBPLEnvFile = ""

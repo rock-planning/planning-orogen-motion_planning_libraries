@@ -95,14 +95,16 @@ void Task::updateHook()
     }
 
     double cost = 0.0;
+    States last_state = state();
+    state(PLANNING);
     if(!mpMotionPlanningLibraries->plan(_planning_time_sec, cost)) {
         enum MplErrors err = mpMotionPlanningLibraries->getError();
         if(err != MPL_ERR_NONE && err != MPL_ERR_REPLANNING_NOT_REQUIRED) {
             LOG_WARN("Planning could not be finished");
         }
         switch(err) {
-            case MPL_ERR_NONE: break; // Does not change the current state.
-            case MPL_ERR_REPLANNING_NOT_REQUIRED: break; // Does not change the current state.
+            case MPL_ERR_NONE: state(last_state); break; // Does not change the current state.
+            case MPL_ERR_REPLANNING_NOT_REQUIRED: state(last_state); break; // Does not change the current state.
             case MPL_ERR_MISSING_START: state(MISSING_START); break;
             case MPL_ERR_MISSING_GOAL: state(MISSING_GOAL); break;
             case MPL_ERR_MISSING_TRAV: state(MISSING_TRAV); break;
@@ -164,7 +166,7 @@ void Task::updateHook()
             _waypoints.write(path);
 
             std::vector<base::Trajectory> vec_traj = 
-                    mpMotionPlanningLibraries->getTrajectoryInWorld(_trajectory_speed.get());
+                    mpMotionPlanningLibraries->getTrajectoryInWorld();
             _trajectory.write(vec_traj);
             
             std::vector<struct State> states = mpMotionPlanningLibraries->getStatesInWorld();

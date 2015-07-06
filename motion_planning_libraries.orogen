@@ -22,9 +22,6 @@ task_context "Task" do
     property("planning_time_sec", "double", 10).
         doc("Maximal allowed planning time per cycle.")
         
-    property("trajectory_speed", "double", 0.5).
-        doc("Defines the overall speed of the trajectory. This property is not used if the planner calculates the speeds (e.g. LIB_SBPL ENV_XYTHETA)")
-        
     operation("generateEscapeTrajectory").
         returns('bool').
         doc("Uses the last trajectory to create and send an escape trajectory (see port escape_trajectory)")
@@ -83,6 +80,7 @@ task_context "Task" do
             :START_ON_OBSTACLE,
             :GOAL_ON_OBSTACLE,
             :START_GOAL_ON_OBSTACLE,
+            :PLANNING,
             :UNDEFINED_ERROR
         
     #port_driven 'traversability_map', 'goal_pose_samples'
