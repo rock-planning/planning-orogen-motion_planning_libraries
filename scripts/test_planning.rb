@@ -41,12 +41,13 @@ Orocos.run  'motion_planning_libraries::Task' => 'planner',
         p.mPrimAccuracy = 0.15
         
         # EO2
-        p.mMobility.mSpeed = 0.1
+        p.mMobility.mSpeed = 0.5
         p.mMobility.mTurningSpeed = 0.15
         p.mMobility.mMultiplierForward = 1
         p.mMobility.mMultiplierBackward = 0
         p.mMobility.mMultiplierLateral = 0
         p.mMobility.mMultiplierForwardTurn = 2
+        p.mMobility.mMultiplierBackwardTurn = 0
         p.mMobility.mMultiplierPointTurn = 0
         p.mMobility.mMinTurningRadius = 1.0
         
