@@ -20,7 +20,8 @@ Orocos.run  'motion_planning_libraries::Task' => 'planner',
           
     planner = TaskContext::get 'planner'
     planner.traversability_map_id = "trav" 
-    planner.planning_time_sec = 10.0
+    planner.planning_time_sec = 16.0
+    planner.only_provide_optimal_trajectories = true
     
     planner.config do |p|
         p.mPlanningLibType = :LIB_SBPL
@@ -35,10 +36,15 @@ Orocos.run  'motion_planning_libraries::Task' => 'planner',
         p.mTimeToAdaptFootprint = 10
         p.mAdaptFootprintPenalty = 2
         p.mSearchUntilFirstSolution = false
-        p.mReplanDuringEachUpdate = false
         p.mNumIntermediatePoints = 8
         p.mNumPrimPartition = 8
         p.mPrimAccuracy = 0.15
+        
+        p.mReplanning.mReplanDuringEachUpdate = false
+        p.mReplanning.mReplanOnNewStartPose = false
+        p.mReplanning.mReplanOnNewGoalPose = true
+        p.mReplanning.mReplanOnNewMap = true
+        p.mReplanning.mReplanMinDistStartGoal = 2.0
         
         # EO2
         p.mMobility.mSpeed = 0.5
@@ -70,7 +76,7 @@ Orocos.run  'motion_planning_libraries::Task' => 'planner',
     test.traversability_map_height_m = 10
     test.traversability_map_scalex =  0.1   
     test.traversability_map_scaley = 0.1
-    test.number_of_random_circles = 50
+    test.number_of_random_circles = 10
     test.opening_length = 2.0
 
     test.configure

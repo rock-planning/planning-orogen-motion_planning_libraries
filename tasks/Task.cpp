@@ -46,6 +46,11 @@ void Task::updateHook()
 {
     TaskBase::updateHook();
     
+    // Uses the task state to communicate which input is missing.
+    enum MplErrors err_inputs;
+    mpMotionPlanningLibraries->allInputsAvailable(err_inputs);
+    setTaskState(err_inputs);
+    
     // Set traversability map.
     envire::OrocosEmitter::Ptr binary_event;
     // Use a loop here because binary_events could contain partial updates
@@ -60,6 +65,11 @@ void Task::updateHook()
         // Just wait some time for a new goal pose in case both
         // map and new goal have been sent together.
         sleep(1);
+    }
+    
+    // Start and goal can only be set if the traversability map is available.
+    if(!mpMotionPlanningLibraries->travGridAvailable()) {
+        return;
     }
      
     // Set start state / pose. 
@@ -94,85 +104,78 @@ void Task::updateHook()
         }
     }
 
-    double cost = 0.0;
-    States last_state = state();
-    state(PLANNING);
-    if(!mpMotionPlanningLibraries->plan(_planning_time_sec, cost)) {
-        enum MplErrors err = mpMotionPlanningLibraries->getError();
-        if(err != MPL_ERR_NONE && err != MPL_ERR_REPLANNING_NOT_REQUIRED) {
-            LOG_WARN("Planning could not be finished");
-        }
-        switch(err) {
-            case MPL_ERR_NONE: state(last_state); break; // Does not change the current state.
-            case MPL_ERR_REPLANNING_NOT_REQUIRED: state(last_state); break; // Does not change the current state.
-            case MPL_ERR_MISSING_START: state(MISSING_START); break;
-            case MPL_ERR_MISSING_GOAL: state(MISSING_GOAL); break;
-            case MPL_ERR_MISSING_TRAV: state(MISSING_TRAV); break;
-            case MPL_ERR_MISSING_START_GOAL: state(MISSING_START_GOAL); break;
-            case MPL_ERR_MISSING_START_TRAV: state(MISSING_START_TRAV); break;
-            case MPL_ERR_MISSING_GOAL_TRAV: state(MISSING_GOAL_TRAV); break;
-            case MPL_ERR_MISSING_START_GOAL_TRAV: state(MISSING_START_GOAL_TRAV); break;
-            case MPL_ERR_PLANNING_FAILED: state(PLANNING_FAILED); break;
-            case MPL_ERR_WRONG_STATE_TYPE: state(WRONG_STATE_TYPE); break;
-            case MPL_ERR_INITIALIZE_MAP: state(INITIALIZE_MAP_ERROR); break;
-            case MPL_ERR_START_ON_OBSTACLE: state(START_ON_OBSTACLE); break;
-            case MPL_ERR_GOAL_ON_OBSTACLE: state(GOAL_ON_OBSTACLE); break;
-            case MPL_ERR_START_GOAL_ON_OBSTACLE: state(START_GOAL_ON_OBSTACLE); break;
-            case MPL_ERR_SET_START_GOAL: state(SET_START_GOAL_ERROR); break;
-            default: state(UNDEFINED_ERROR); break;
-        }
-        
-        // In case of a real error an empty trajectory will be sent.
-        if(err != MPL_ERR_NONE && err != MPL_ERR_REPLANNING_NOT_REQUIRED) {
-            std::vector<base::Trajectory> empty_trajectories;
-            _trajectory.write(empty_trajectories);
-        }
-        
-        if(err == MPL_ERR_START_ON_OBSTACLE || err == MPL_ERR_START_GOAL_ON_OBSTACLE) {
-            LOG_INFO("Start state lies on an obstacle, tries to generate an escape trajectory");
-            if(generateEscapeTrajectory()) {
-                LOG_INFO("Escape trajectory could be created");
-            } else {
-                LOG_WARN("Escape trajectory could not be created");
+    if(mpMotionPlanningLibraries->replanningRequired()) {
+        double cost = 0.0;
+        state(PLANNING);
+        if(!mpMotionPlanningLibraries->plan(_planning_time_sec, cost)) {
+            enum MplErrors err = mpMotionPlanningLibraries->getError();
+            if(err != MPL_ERR_NONE && err != MPL_ERR_REPLANNING_NOT_REQUIRED) {
+                LOG_WARN("Planning could not be finished");
             }
-        }
-    } else {
-        state(PLANNING_SUCCESSFUL);
-        state(RUNNING);
-       
-        // Compare new and old path and just publish and print path if its new.
-        std::vector <base::Waypoint > path = mpMotionPlanningLibraries->getPathInWorld();
-        
-        bool new_path = false;
-        if(path.size() != mLastPath.size()) {
-            new_path = true;
-        } else {
-            std::vector <base::Waypoint >::iterator it_new = path.begin();
-            std::vector <base::Waypoint >::iterator it_last = mLastPath.begin();
-            for(; it_new < path.end() && it_last < mLastPath.end(); it_new++, it_last++) {
-                if(it_new->position != it_last->position || 
-                    it_new->heading != it_last->heading) {
-                    new_path = true;
-                    break;
+            setTaskState(err);
+            
+            // In case of a real error an empty trajectory will be sent.
+            if(err != MPL_ERR_NONE && err != MPL_ERR_REPLANNING_NOT_REQUIRED) {
+                std::vector<base::Trajectory> empty_trajectories;
+                _trajectory.write(empty_trajectories);
+            }
+            
+            if(err == MPL_ERR_START_ON_OBSTACLE || err == MPL_ERR_START_GOAL_ON_OBSTACLE) {
+                LOG_INFO("Start state lies on an obstacle, tries to generate an escape trajectory");
+                if(generateEscapeTrajectory()) {
+                    LOG_INFO("Escape trajectory could be created");
+                } else {
+                    LOG_WARN("Escape trajectory could not be created");
                 }
             }
-        }
-        mLastPath = path;
+        } else {
+            // Task state switches between PLANNING and RUNNING until a
+            // optimal solution has been found (PLANNING_SUCCESSFUL).
+            // If foundFinalSolution() is not supported or implemented,
+            // the state will switch between PLANNING and PLANNING_SUCCESSFUL.
+            bool final_solution = mpMotionPlanningLibraries->foundFinalSolution();
+            if(final_solution) {
+                state(PLANNING_SUCCESSFUL);
+            } else {
+                state(RUNNING);
+            }
         
-        if(new_path) {
-            LOG_INFO("New path received");
-             mpMotionPlanningLibraries->printPathInWorld();
-             
-            _waypoints.write(path);
+            // Compare new and old path and just publish and print path if its new.
+            std::vector <base::Waypoint > path = mpMotionPlanningLibraries->getPathInWorld();
+            
+            bool new_path = false;
+            if(path.size() != mLastPath.size()) {
+                new_path = true;
+            } else {
+                std::vector <base::Waypoint >::iterator it_new = path.begin();
+                std::vector <base::Waypoint >::iterator it_last = mLastPath.begin();
+                for(; it_new < path.end() && it_last < mLastPath.end(); it_new++, it_last++) {
+                    if(it_new->position != it_last->position || 
+                        it_new->heading != it_last->heading) {
+                        new_path = true;
+                        break;
+                    }
+                }
+            }
+            mLastPath = path;
+            
+            if((new_path && !_only_provide_optimal_trajectories.get()) || 
+                    (_only_provide_optimal_trajectories.get() && final_solution)) {
+                
+                LOG_INFO("New path received");
+                mpMotionPlanningLibraries->printPathInWorld();
+                
+                _waypoints.write(path);
 
-            std::vector<base::Trajectory> vec_traj = 
-                    mpMotionPlanningLibraries->getTrajectoryInWorld();
-            _trajectory.write(vec_traj);
-            
-            std::vector<struct State> states = mpMotionPlanningLibraries->getStatesInWorld();
-            _states.write(states); 
-            
-            _path_cost.write(cost);
+                std::vector<base::Trajectory> vec_traj = 
+                        mpMotionPlanningLibraries->getTrajectoryInWorld();
+                _trajectory.write(vec_traj);
+                
+                std::vector<struct State> states = mpMotionPlanningLibraries->getStatesInWorld();
+                _states.write(states); 
+                
+                _path_cost.write(cost);
+            }
         }
     }
     
@@ -215,4 +218,27 @@ bool Task::generateEscapeTrajectory() {
     }
     LOG_WARN("Motion planning library has not been created yet");
     return false;
+}
+
+void Task::setTaskState(enum MplErrors err) {
+    LOG_INFO("Setting task state, receives error %d",(int));
+    switch(err) {
+        case MPL_ERR_NONE: break; // Does not change the current state.
+        case MPL_ERR_REPLANNING_NOT_REQUIRED: break; // Does not change the current state.
+        case MPL_ERR_MISSING_START: state(MISSING_START); break;
+        case MPL_ERR_MISSING_GOAL: state(MISSING_GOAL); break;
+        case MPL_ERR_MISSING_TRAV: state(MISSING_TRAV); break;
+        case MPL_ERR_MISSING_START_GOAL: state(MISSING_START_GOAL); break;
+        case MPL_ERR_MISSING_START_TRAV: state(MISSING_START_TRAV); break;
+        case MPL_ERR_MISSING_GOAL_TRAV: state(MISSING_GOAL_TRAV); break;
+        case MPL_ERR_MISSING_START_GOAL_TRAV: state(MISSING_START_GOAL_TRAV); break;
+        case MPL_ERR_PLANNING_FAILED: state(PLANNING_FAILED); break;
+        case MPL_ERR_WRONG_STATE_TYPE: state(WRONG_STATE_TYPE); break;
+        case MPL_ERR_INITIALIZE_MAP: state(INITIALIZE_MAP_ERROR); break;
+        case MPL_ERR_START_ON_OBSTACLE: state(START_ON_OBSTACLE); break;
+        case MPL_ERR_GOAL_ON_OBSTACLE: state(GOAL_ON_OBSTACLE); break;
+        case MPL_ERR_START_GOAL_ON_OBSTACLE: state(START_GOAL_ON_OBSTACLE); break;
+        case MPL_ERR_SET_START_GOAL: state(SET_START_GOAL_ERROR); break;
+        default: state(UNDEFINED_ERROR); break;
+    }
 }

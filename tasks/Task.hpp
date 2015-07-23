@@ -143,7 +143,7 @@ class Task : public TaskBase
         State mStartState;
         State mGoalState;
         std::vector <base::Waypoint > mLastPath;
-
+      
     public:
         /** TaskContext constructor for Task
          * \param name Name of the task. This name needs to be unique to make it identifiable via nameservices.
@@ -230,6 +230,10 @@ class Task : public TaskBase
          * The esacpe trajectory is written to the port 'escape_trajectory'.
          */
         bool generateEscapeTrajectory();   
+        
+    private:
+        void setTaskState(enum MplErrors err);
+
     };
 }
 
