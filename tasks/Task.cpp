@@ -123,7 +123,7 @@ void Task::updateHook()
             if(err == MPL_ERR_START_ON_OBSTACLE || err == MPL_ERR_START_GOAL_ON_OBSTACLE) {
                 LOG_INFO("Start state lies on an obstacle, tries to generate an escape trajectory");
                 if(generateEscapeTrajectory()) {
-                    LOG_INFO("Escape trajectory could be created");
+                    LOG_INFO("Escape trajectory has been created");
                 } else {
                     LOG_WARN("Escape trajectory could not be created");
                 }
@@ -214,7 +214,11 @@ bool Task::generateEscapeTrajectory() {
             LOG_WARN("Empty escape trajectory recieved");
             return false;
         }
-        _escape_trajectory.write(escape_traj);
+        if(_send_escape_traj_to_traj_port.get()) {
+            _trajectory.write(escape_traj);
+        } else {
+            _escape_trajectory.write(escape_traj);
+        }
     }
     LOG_WARN("Motion planning library has not been created yet");
     return false;

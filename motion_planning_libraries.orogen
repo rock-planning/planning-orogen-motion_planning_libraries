@@ -25,6 +25,9 @@ task_context "Task" do
     property("only_provide_optimal_trajectories", "bool", false).
         doc("In general an optimal trajectory is not required: It takes much more time and provides only a small improvement.")
         
+    property("send_escape_traj_to_traj_port", "bool", false).
+        doc("If this parameter is set to true the escape traj will be written to the trajectory port instead of escape_trajectory")
+        
     operation("generateEscapeTrajectory").
         returns('bool').
         doc("Uses the last trajectory to create and send an escape trajectory (see port escape_trajectory)")
