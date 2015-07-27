@@ -231,6 +231,15 @@ class Task : public TaskBase
          */
         bool generateEscapeTrajectory();   
         
+        /**
+         * Returns the MPL library pointer.
+         * \warning "Multithreading is not supported!"
+         */
+        inline boost::shared_ptr<MotionPlanningLibraries> getMPLPointer() {
+            return mpMotionPlanningLibraries;
+        }
+        
+        
     private:
         void setTaskState(enum MplErrors err);
 
