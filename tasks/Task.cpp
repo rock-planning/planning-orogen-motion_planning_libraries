@@ -225,7 +225,7 @@ bool Task::generateEscapeTrajectory() {
 }
 
 void Task::setTaskState(enum MplErrors err) {
-    LOG_INFO("Setting task state, receives error %d",(int));
+    LOG_INFO("Setting task state, receives error %d",(int)err);
     switch(err) {
         case MPL_ERR_NONE: break; // Does not change the current state.
         case MPL_ERR_REPLANNING_NOT_REQUIRED: break; // Does not change the current state.
