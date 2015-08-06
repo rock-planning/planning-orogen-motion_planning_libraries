@@ -136,9 +136,13 @@ void Task::updateHook()
             bool final_solution = mpMotionPlanningLibraries->foundFinalSolution();
             if(final_solution) {
                 state(PLANNING_SUCCESSFUL);
-            } else {
+            } 
+            /*
+            else {
+                /// \todo "1. We do not enter RUNNING anymore, why? oO 2. Remove completely?"
                 state(RUNNING);
             }
+            */
         
             // Compare new and old path and just publish and print path if its new.
             std::vector <base::Waypoint > path = mpMotionPlanningLibraries->getPathInWorld();
