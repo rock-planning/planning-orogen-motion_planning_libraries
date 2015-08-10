@@ -178,6 +178,10 @@ void Task::updateHook()
                 std::vector<struct State> states = mpMotionPlanningLibraries->getStatesInWorld();
                 _states.write(states); 
                 
+                dwa::Trajectory dwa_traj = 
+                        mpMotionPlanningLibraries->getHolonomicTrajectoryInWorld();
+                _holonomic_trajectory.write(dwa_traj);
+                
                 _path_cost.write(cost);
             }
         }

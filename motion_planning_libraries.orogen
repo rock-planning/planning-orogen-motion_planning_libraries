@@ -10,6 +10,9 @@ import_types_from "motion_planning_libraries/Config.hpp"
 import_types_from "motion_planning_libraries/State.hpp"
 import_types_from "motion_planning_libraries/sbpl/SbplMotionPrimitives.hpp"
 
+# TODO Has to be changed to using task as soon as a module is available.
+import_types_from "dwa/DWA.hpp"
+
 task_context "Task" do
     needs_configuration
 
@@ -31,7 +34,7 @@ task_context "Task" do
     operation("generateEscapeTrajectory").
         returns('bool').
         doc("Uses the last trajectory to create and send an escape trajectory (see port escape_trajectory)")
-
+       
     input_port('traversability_map', ro_ptr('std/vector</envire/BinaryEvent>')).
         doc("Traversability map. Has to be received once before planning can be executed.")
 
@@ -52,6 +55,9 @@ task_context "Task" do
 
     output_port("trajectory", "std::vector</base/Trajectory>").
         doc("Spline format.")
+        
+    output_port("holonomic_trajectory", "dwa/Trajectory").
+        doc("Holonomic spline format.")
         
     output_port("states", "std::vector</motion_planning_libraries/State>").
         doc("List of motion_planning_libraries states")
