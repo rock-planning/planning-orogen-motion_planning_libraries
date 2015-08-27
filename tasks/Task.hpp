@@ -7,11 +7,9 @@
 
 #include <envire/core/Environment.hpp>
 
-#include <motion_planning_libraries/MotionPlanningLibraries.hpp>
-
 namespace motion_planning_libraries {
 
-    class MotionPlanningLibraries;
+class MotionPlanningLibraries;
 
 
 /**

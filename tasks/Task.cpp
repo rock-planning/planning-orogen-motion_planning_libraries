@@ -5,6 +5,8 @@
 #include <base/logging/logging_printf_style.h>
 
 #include <envire/Orocos.hpp>
+#include <motion_planning_libraries/MotionPlanningLibraries.hpp>
+
 
 using namespace motion_planning_libraries;
 
