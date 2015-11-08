@@ -195,6 +195,8 @@ void Task::updateHook()
             _sbpl_mprims_debug.write(mprims);
         }
     }
+    
+    flushTestMap();
 }
 
 void Task::errorHook()
@@ -228,6 +230,26 @@ bool Task::generateEscapeTrajectory() {
     }
     LOG_WARN("Motion planning library has not been created yet");
     return false;
+}
+
+bool Task::flushTestMap() {
+    
+    envire::TraversabilityGrid* trav_grid = NULL;
+    envire::FrameNode* frame_node = NULL; 
+    if(!mpMotionPlanningLibraries->getInternalSBPLMapDebug(&trav_grid, &frame_node)) {
+        return false;
+    }
+    
+    envire::Environment tr;    
+    tr.getRootNode()->addChild(frame_node);
+    tr.attachItem(trav_grid, frame_node);
+    
+    trav_grid->setFrameNode(frame_node);
+    
+    envire::OrocosEmitter emitter(&tr, _sbpl_trav_map_debug);
+    emitter.setTime(base::Time::now());
+    emitter.flush(); 
+    return true;
 }
 
 void Task::setTaskState(enum MplErrors err) {

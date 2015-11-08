@@ -31,6 +31,10 @@ task_context "Task" do
     operation("generateEscapeTrajectory").
         returns('bool').
         doc("Uses the last trajectory to create and send an escape trajectory (see port escape_trajectory)")
+        
+    operation("flushTestMap").
+        returns('bool').
+        doc("Writes the internal SBPL map to the port sbpl_trav_map_debug")
 
     input_port('traversability_map', ro_ptr('std/vector</envire/BinaryEvent>')).
         doc("Traversability map. Has to be received once before planning can be executed.")
@@ -70,6 +74,9 @@ task_context "Task" do
         
     output_port("escape_trajectory", "std::vector</base/Trajectory>").
         doc("The operation generateEscapeTrajectory() writes the escape trajectory to this port")
+     
+    output_port('sbpl_trav_map_debug', ro_ptr('std/vector</envire/BinaryEvent>')).
+        doc("Used to request the internal SBPL map.")
 
     runtime_states :MISSING_START, 
             :MISSING_GOAL, 

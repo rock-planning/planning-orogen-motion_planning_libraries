@@ -230,6 +230,11 @@ class Task : public TaskBase
         bool generateEscapeTrajectory();   
         
         /**
+         * Writes the internal SBPL map to the according port.
+         */
+        bool flushTestMap();
+        
+        /**
          * Returns the MPL library pointer.
          * \warning "Multithreading is not supported!"
          */
@@ -240,7 +245,6 @@ class Task : public TaskBase
         
     private:
         void setTaskState(enum MplErrors err);
-
     };
 }
 
