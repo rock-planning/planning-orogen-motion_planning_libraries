@@ -11,12 +11,12 @@
 using namespace motion_planning_libraries;
 
 Task::Task(std::string const& name)
-    : TaskBase(name)
+    : TaskBase(name), mEscapeTrajAvailable(false)
 {
 }
 
 Task::Task(std::string const& name, RTT::ExecutionEngine* engine)
-    : TaskBase(name, engine)
+    : TaskBase(name, engine), mEscapeTrajAvailable(false)
 {
 }
 
@@ -38,12 +38,16 @@ bool Task::configureHook()
     
     return true;
 }
+
 bool Task::startHook()
 {
+    mEscapeTrajAvailable = false;
+    
     if (! TaskBase::startHook())
         return false;
     return true;
 }
+
 void Task::updateHook()
 {
     TaskBase::updateHook();
@@ -165,6 +169,10 @@ void Task::updateHook()
             }
             mLastPath = path;
             
+            if(new_path) {
+                mEscapeTrajAvailable = true;
+            }
+            
             if((new_path && !_only_provide_optimal_trajectories.get()) || 
                     (_only_provide_optimal_trajectories.get() && final_solution)) {
                 
@@ -213,21 +221,24 @@ void Task::cleanupHook()
 }
 
 bool Task::generateEscapeTrajectory() {
-    if(mpMotionPlanningLibraries) {
-        std::vector<base::Trajectory> escape_traj = 
-                mpMotionPlanningLibraries->getEscapeTrajectoryInWorld();
-        if(escape_traj.size() == 0) {
-            LOG_WARN("Empty escape trajectory recieved");
-            return false;
-        }
-        if(_send_escape_traj_to_traj_port.get()) {
-            _trajectory.write(escape_traj);
-        } else {
-            _escape_trajectory.write(escape_traj);
+    bool ret = false;
+    std::vector<base::Trajectory> escape_traj;
+
+    if(mpMotionPlanningLibraries && mEscapeTrajAvailable) {
+        escape_traj = mpMotionPlanningLibraries->getEscapeTrajectoryInWorld();
+
+        if(escape_traj.size() > 0) {
+            ret = true;
         }
     }
-    LOG_WARN("Motion planning library has not been created yet");
-    return false;
+
+    if(_send_escape_traj_to_traj_port.get()) {
+        _trajectory.write(escape_traj);
+    } else {
+        _escape_trajectory.write(escape_traj);
+    }
+    mEscapeTrajAvailable = false;
+    return ret;
 }
 
 void Task::setTaskState(enum MplErrors err) {

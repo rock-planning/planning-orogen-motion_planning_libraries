@@ -141,6 +141,7 @@ class Task : public TaskBase
         State mStartState;
         State mGoalState;
         std::vector <base::Waypoint > mLastPath;
+        bool mEscapeTrajAvailable; // For each path we generate only one escape trajectory.
       
     public:
         /** TaskContext constructor for Task
