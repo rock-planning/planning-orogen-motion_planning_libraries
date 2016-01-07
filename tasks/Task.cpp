@@ -109,6 +109,9 @@ void Task::updateHook()
             }
         }
     }
+    
+    mpMotionPlanningLibraries->allInputsAvailable(err_inputs);
+    setTaskState(err_inputs);
 
     if(mpMotionPlanningLibraries->replanningRequired()) {
         double cost = 0.0;
@@ -116,15 +119,12 @@ void Task::updateHook()
         if(!mpMotionPlanningLibraries->plan(_planning_time_sec, cost)) {
             enum MplErrors err = mpMotionPlanningLibraries->getError();
             if(err != MPL_ERR_NONE && err != MPL_ERR_REPLANNING_NOT_REQUIRED) {
-                LOG_WARN("Planning could not be finished");
-            }
-            setTaskState(err);
-            
-            // In case of a real error an empty trajectory will be sent.
-            if(err != MPL_ERR_NONE && err != MPL_ERR_REPLANNING_NOT_REQUIRED) {
+                LOG_WARN("Planning could not be finished, error %d", (int)err);
+                // In case of a real error an empty trajectory will be sent.
                 std::vector<base::Trajectory> empty_trajectories;
                 _trajectory.write(empty_trajectories);
             }
+            setTaskState(err);
             
             if(err == MPL_ERR_START_ON_OBSTACLE || err == MPL_ERR_START_GOAL_ON_OBSTACLE) {
                 LOG_INFO("Start state lies on an obstacle, tries to generate an escape trajectory");
@@ -135,20 +135,14 @@ void Task::updateHook()
                 }
             }
         } else {
-            // Task state switches between PLANNING and RUNNING until a
-            // optimal solution has been found (PLANNING_SUCCESSFUL).
+            LOG_INFO("Planning successful");
             // If foundFinalSolution() is not supported or implemented,
-            // the state will switch between PLANNING and PLANNING_SUCCESSFUL.
+            // we will only plan once and switch to planning successful.
             bool final_solution = mpMotionPlanningLibraries->foundFinalSolution();
             if(final_solution) {
+                LOG_INFO("Planning found final solution");
                 state(PLANNING_SUCCESSFUL);
             } 
-            /*
-            else {
-                /// \todo "1. We do not enter RUNNING anymore, why? oO 2. Remove completely?"
-                state(RUNNING);
-            }
-            */
         
             // Compare new and old path and just publish and print path if its new.
             std::vector <base::Waypoint > path = mpMotionPlanningLibraries->getPathInWorld();
@@ -173,6 +167,10 @@ void Task::updateHook()
                 mEscapeTrajAvailable = true;
             }
             
+            // The final solution is also only provided once because
+            // replanningRequired() will return false as soon as an optimal 
+            // solution has been found.
+            // So every new path is returned or only the final solution.
             if((new_path && !_only_provide_optimal_trajectories.get()) || 
                     (_only_provide_optimal_trajectories.get() && final_solution)) {
                 
