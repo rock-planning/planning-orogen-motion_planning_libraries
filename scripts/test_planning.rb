@@ -21,16 +21,18 @@ Orocos.run  'motion_planning_libraries::Task' => 'planner',
     planner = TaskContext::get 'planner'
     planner.traversability_map_id = "trav" 
     planner.planning_time_sec = 16.0
-    planner.only_provide_optimal_trajectories = true
+    planner.only_provide_optimal_trajectories = false
     
     planner.config do |p|
-        p.mPlanningLibType = :LIB_SBPL
-        p.mEnvType = :ENV_XYTHETA
+        p.mPlanningLibType = :LIB_OMPL
+        p.mEnvType = :ENV_SHERPA
         p.mPlanner = :ANYTIME_DSTAR
         p.mFootprintLengthMinMax.first = 1.0
         p.mFootprintLengthMinMax.second = 1.0
         p.mFootprintWidthMinMax.first = 1.0
         p.mFootprintWidthMinMax.second = 1.0
+        p.mFootprintRadiusMinMax.first = 1.0
+        p.mFootprintRadiusMinMax.second = 2.0
         p.mMaxAllowedSampleDist = -1
         p.mNumFootprintClasses = 10
         p.mTimeToAdaptFootprint = 10
@@ -40,7 +42,7 @@ Orocos.run  'motion_planning_libraries::Task' => 'planner',
         p.mNumPrimPartition = 8
         p.mPrimAccuracy = 0.15
         
-        p.mReplanning.mReplanDuringEachUpdate = false
+        p.mReplanning.mReplanDuringEachUpdate = true
         p.mReplanning.mReplanOnNewStartPose = false
         p.mReplanning.mReplanOnNewGoalPose = true
         p.mReplanning.mReplanOnNewMap = true
@@ -71,13 +73,13 @@ Orocos.run  'motion_planning_libraries::Task' => 'planner',
 
     test = TaskContext::get 'test'
     test.traversability_map_id = 'trav'
-    test.traversability_map_type = 'RANDOM_CIRCLES'
+    test.traversability_map_type = 'SMALL_OPENING'
     test.traversability_map_width_m = 120
     test.traversability_map_height_m = 10
     test.traversability_map_scalex =  0.1   
     test.traversability_map_scaley = 0.1
     test.number_of_random_circles = 10
-    test.opening_length = 2.0
+    test.opening_length = 3.0
 
     test.configure
     test.start

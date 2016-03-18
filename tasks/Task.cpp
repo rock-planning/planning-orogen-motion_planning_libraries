@@ -119,7 +119,12 @@ void Task::updateHook()
         if(!mpMotionPlanningLibraries->plan(_planning_time_sec, cost)) {
             enum MplErrors err = mpMotionPlanningLibraries->getError();
             if(err != MPL_ERR_NONE && err != MPL_ERR_REPLANNING_NOT_REQUIRED) {
-                LOG_WARN("Planning could not be finished, error %d", (int)err);
+                std::string err_str;
+                if(mpMotionPlanningLibraries->getErrorString(err, err_str)) {
+                    LOG_WARN("Planning could not be finished, error %s", err_str.c_str());
+                } else {
+                    LOG_WARN("Planning could not be finished, error %d", (int)err);
+                }
                 // In case of a real error an empty trajectory will be sent.
                 std::vector<base::Trajectory> empty_trajectories;
                 _trajectory.write(empty_trajectories);
@@ -164,7 +169,10 @@ void Task::updateHook()
             mLastPath = path;
             
             if(new_path) {
+                LOG_INFO("New path found");
                 mEscapeTrajAvailable = true;
+            } else {
+                LOG_INFO("No new path found");
             }
             
             // The final solution is also only provided once because
@@ -174,7 +182,7 @@ void Task::updateHook()
             if((new_path && !_only_provide_optimal_trajectories.get()) || 
                     (_only_provide_optimal_trajectories.get() && final_solution)) {
                 
-                LOG_INFO("New path received");
+                LOG_INFO("Publish found path");
                 mpMotionPlanningLibraries->printPathInWorld();
                 
                 _waypoints.write(path);
@@ -240,7 +248,9 @@ bool Task::generateEscapeTrajectory() {
 }
 
 void Task::setTaskState(enum MplErrors err) {
-    LOG_INFO("Setting task state, receives error %d",(int)err);
+    if(err != MPL_ERR_NONE && err != MPL_ERR_REPLANNING_NOT_REQUIRED) {
+        LOG_INFO("Setting task state, receives error: %s", getTaskStateName(err).c_str());
+    }
     switch(err) {
         case MPL_ERR_NONE: break; // Does not change the current state.
         case MPL_ERR_REPLANNING_NOT_REQUIRED: break; // Does not change the current state.
@@ -259,5 +269,27 @@ void Task::setTaskState(enum MplErrors err) {
         case MPL_ERR_START_GOAL_ON_OBSTACLE: state(START_GOAL_ON_OBSTACLE); break;
         case MPL_ERR_SET_START_GOAL: state(SET_START_GOAL_ERROR); break;
         default: state(UNDEFINED_ERROR); break;
+    }
+}
+
+std::string Task::getTaskStateName(enum MplErrors err) {
+    switch(err) {
+        case MPL_ERR_NONE: return "No error";
+        case MPL_ERR_REPLANNING_NOT_REQUIRED: return "Replanning not required";
+        case MPL_ERR_MISSING_START: return "Missing: Start";
+        case MPL_ERR_MISSING_GOAL: return "Missing: Goal";
+        case MPL_ERR_MISSING_TRAV: return "Missing: Trav";
+        case MPL_ERR_MISSING_START_GOAL: return "Missing: Start, Goal";
+        case MPL_ERR_MISSING_START_TRAV: return "Missing: Start, Trav";
+        case MPL_ERR_MISSING_GOAL_TRAV: return "Missing: Goal, Trav";
+        case MPL_ERR_MISSING_START_GOAL_TRAV: return "Missing: Start, Goal, Trav";
+        case MPL_ERR_PLANNING_FAILED: return "Planning failed";
+        case MPL_ERR_WRONG_STATE_TYPE: return "Wrong state type (correct start/goal?)";
+        case MPL_ERR_INITIALIZE_MAP: return "Map initialization failed";
+        case MPL_ERR_START_ON_OBSTACLE: return "Start lies on an obstacle";
+        case MPL_ERR_GOAL_ON_OBSTACLE: return "Goal lies on an obstacle";
+        case MPL_ERR_START_GOAL_ON_OBSTACLE: return "Start and goal lie on an obstacle";
+        case MPL_ERR_SET_START_GOAL: return "Start/goal could not be set";
+        default: return "Unknown state";
     }
 }

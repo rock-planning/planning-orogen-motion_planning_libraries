@@ -241,6 +241,8 @@ class Task : public TaskBase
         
     private:
         void setTaskState(enum MplErrors err);
+        
+        std::string getTaskStateName(enum MplErrors err);
 
     };
 }
