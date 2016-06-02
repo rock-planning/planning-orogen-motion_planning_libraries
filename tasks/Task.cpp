@@ -268,6 +268,7 @@ void Task::setTaskState(enum MplErrors err) {
         case MPL_ERR_GOAL_ON_OBSTACLE: state(GOAL_ON_OBSTACLE); break;
         case MPL_ERR_START_GOAL_ON_OBSTACLE: state(START_GOAL_ON_OBSTACLE); break;
         case MPL_ERR_SET_START_GOAL: state(SET_START_GOAL_ERROR); break;
+        case MPL_ERR_GOAL_COULD_ONLY_BE_REACHED_IMPRECISELY: state(GOAL_COULD_ONLY_BE_REACHED_IMPRECISELY); break;
         default: state(UNDEFINED_ERROR); break;
     }
 }
@@ -290,6 +291,7 @@ std::string Task::getTaskStateName(enum MplErrors err) {
         case MPL_ERR_GOAL_ON_OBSTACLE: return "Goal lies on an obstacle";
         case MPL_ERR_START_GOAL_ON_OBSTACLE: return "Start and goal lie on an obstacle";
         case MPL_ERR_SET_START_GOAL: return "Start/goal could not be set";
+        case MPL_ERR_GOAL_COULD_ONLY_BE_REACHED_IMPRECISELY: return "End of trajectory does not reach the goal position";
         default: return "Unknown state";
     }
 }

@@ -69,9 +69,11 @@ void Test::updateHook()
     // Create and write start and goal pose.
     createStartGoalState(_traversability_map_width_m.get(), 
             _traversability_map_height_m.get(), mStart, mGoal);
-
+    
     _start_state.write(mStart);
     _goal_state.write(mGoal);
+    _start_pose_sample.write(mStart.mPose);
+    _goal_pose_sample.write(mGoal.mPose);
 
     printf("COUNTER %d\n", mCounter);
     mCounter++;

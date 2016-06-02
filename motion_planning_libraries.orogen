@@ -87,6 +87,7 @@ task_context "Task" do
             :GOAL_ON_OBSTACLE,
             :START_GOAL_ON_OBSTACLE,
             :PLANNING,
+            :GOAL_COULD_ONLY_BE_REACHED_IMPRECISELY,
             :UNDEFINED_ERROR
         
     #port_driven 'traversability_map', 'goal_pose_samples'
@@ -128,7 +129,13 @@ task_context "Test" do
 
     output_port('traversability_map', ro_ptr('std/vector</envire/BinaryEvent>')).
         doc("Traversability map. Has to be received once before planning can be executed.")    
+     
+    output_port('start_pose_sample', 'base/samples/RigidBodyState').
+        doc("Start pose in the world, using x and y and yaw.") 
         
+    output_port('goal_pose_sample', 'base/samples/RigidBodyState').
+        doc("Goal pose in the world, using x and y and yaw.") 
+     
     output_port('start_state', '/motion_planning_libraries/State').
         doc("Start pose in the world, using x and y and yaw.")
         
@@ -136,3 +143,18 @@ task_context "Test" do
         doc("Goal pose in the world, using x and y and yaw.")
 end
 
+task_context "FollowingTest" do
+    needs_configuration
+
+    input_port("start_pose", "/base/samples/RigidBodyState").
+        doc("Has to receive the start pose of the system once")
+       
+    input_port("motion_command", "base/commands/Motion2D").
+        doc("Used to calculate the next robot pose")
+        
+    output_port("robot_pose", "/base/samples/RigidBodyState").
+        doc("Moved robot pose")
+        
+    periodic 0.01
+end
+        

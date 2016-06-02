@@ -20,43 +20,43 @@ Orocos.run  'motion_planning_libraries::Task' => 'planner',
           
     planner = TaskContext::get 'planner'
     planner.traversability_map_id = "trav" 
-    planner.planning_time_sec = 16.0
-    planner.only_provide_optimal_trajectories = false
+    planner.planning_time_sec = 20.0
+    planner.only_provide_optimal_trajectories = true
     
     planner.config do |p|
         p.mPlanningLibType = :LIB_OMPL
         p.mEnvType = :ENV_SHERPA
-        p.mPlanner = :ANYTIME_DSTAR
+        p.mPlanner = :UNDEFINED_PLANNER
         p.mFootprintLengthMinMax.first = 1.0
         p.mFootprintLengthMinMax.second = 1.0
         p.mFootprintWidthMinMax.first = 1.0
         p.mFootprintWidthMinMax.second = 1.0
-        p.mFootprintRadiusMinMax.first = 1.0
-        p.mFootprintRadiusMinMax.second = 2.0
-        p.mMaxAllowedSampleDist = -1
+        p.mFootprintRadiusMinMax.first =  0.6
+        p.mFootprintRadiusMinMax.second = 1.58 
+        p.mMaxAllowedSampleDist = 2.0
         p.mNumFootprintClasses = 10
-        p.mTimeToAdaptFootprint = 10
+        p.mTimeToAdaptFootprint = 20
         p.mAdaptFootprintPenalty = 2
         p.mSearchUntilFirstSolution = false
         p.mNumIntermediatePoints = 8
         p.mNumPrimPartition = 8
         p.mPrimAccuracy = 0.15
         
-        p.mReplanning.mReplanDuringEachUpdate = true
+        p.mReplanning.mReplanDuringEachUpdate = false
         p.mReplanning.mReplanOnNewStartPose = false
         p.mReplanning.mReplanOnNewGoalPose = true
-        p.mReplanning.mReplanOnNewMap = true
+        p.mReplanning.mReplanOnNewMap = false
         p.mReplanning.mReplanMinDistStartGoal = 2.0
         
         # EO2
         p.mMobility.mSpeed = 0.5
         p.mMobility.mTurningSpeed = 0.15
         p.mMobility.mMultiplierForward = 1
-        p.mMobility.mMultiplierBackward = 0
+        p.mMobility.mMultiplierBackward = 2
         p.mMobility.mMultiplierLateral = 0
         p.mMobility.mMultiplierForwardTurn = 2
-        p.mMobility.mMultiplierBackwardTurn = 0
-        p.mMobility.mMultiplierPointTurn = 0
+        p.mMobility.mMultiplierBackwardTurn = 3
+        p.mMobility.mMultiplierPointTurn = 4
         p.mMobility.mMinTurningRadius = 1.0
         
         # SBPL specific configuration
@@ -79,7 +79,10 @@ Orocos.run  'motion_planning_libraries::Task' => 'planner',
     test.traversability_map_scalex =  0.1   
     test.traversability_map_scaley = 0.1
     test.number_of_random_circles = 10
-    test.opening_length = 3.0
+    test.opening_length = 1.8
+    test.footprint_min = 0.6
+    test.footprint_max = 1.58
+    
 
     test.configure
     test.start
@@ -88,13 +91,13 @@ Orocos.run  'motion_planning_libraries::Task' => 'planner',
     test.start_state.connect_to(planner.start_state) 
     test.goal_state.connect_to(planner.goal_state)     
         
-    t1 = Thread.new do
+    #t1 = Thread.new do
         while true do
             Readline::readline("Hit enter to generate a new test environment ... ")
             test.trigger
         end
-    end
-
+    #end
+=begin
     Vizkit.display planner
     Vizkit.display test.port("traversability_map")
     #Vizkit.display test.port("start_pose_samples"), :widget => Vizkit.default_loader.RigidBodyStateVisualization
@@ -109,7 +112,7 @@ Orocos.run  'motion_planning_libraries::Task' => 'planner',
     Vizkit.display planner.sbpl_mprims_debug
  
     Vizkit.exec
-
+=end
     Readline::readline("Hit ENTER to stop")    
 end
   
