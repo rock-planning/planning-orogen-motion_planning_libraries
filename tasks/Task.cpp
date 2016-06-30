@@ -2,7 +2,7 @@
 
 #include "Task.hpp"
 
-#include <base/logging/logging_printf_style.h>
+#include <base-logging/Logging.hpp>
 
 #include <envire/Orocos.hpp>
 #include <motion_planning_libraries/MotionPlanningLibraries.hpp>

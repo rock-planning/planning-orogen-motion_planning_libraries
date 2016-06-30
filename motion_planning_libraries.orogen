@@ -1,5 +1,6 @@
 name "motion_planning_libraries"
 
+using_library "base-logging"
 using_library "envire"
 using_library "motion_planning_libraries"
 
