@@ -89,22 +89,18 @@ void Task::updateHook()
     } else {   
         if(_start_pose_samples.readNewest(mStartPose) == RTT::NewData) {
             double initial_footprint = _initial_footprint.get();
-            printf("FOOTPRINT1 %4.2f\n",initial_footprint);
             State start_state(mStartPose);
             // Uses the footprint property or calculates the medium set
             // footprint.
             // TODO: Use a port supporting the current footprint of the system.
-            printf("FOOTPRINT2 %4.2f\n",initial_footprint);
             if(initial_footprint <= 0) {
                 initial_footprint = (_config.get().getMaxRadius() + 
                         _config.get().getMinRadius()) / 2.0;
             }
-            printf("FOOTPRINT3 %4.2f\n",initial_footprint);
             start_state.mFootprintRadius = initial_footprint;
             if(mpMotionPlanningLibraries->setStartState(start_state)) {
                 _start_pose_samples_debug.write(mStartPose);
             }
-            printf("FOOTPRINT4 %4.2f\n",start_state.mFootprintRadius);
         }
     }
     
