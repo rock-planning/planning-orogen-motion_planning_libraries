@@ -3,6 +3,8 @@ name "motion_planning_libraries"
 using_library "envire"
 using_library "motion_planning_libraries"
 
+using_task_library "trajectory_follower"
+
 import_types_from "base"
 import_types_from "envire"	
 import_types_from "motion_planning_librariesTypes.hpp"
@@ -52,6 +54,9 @@ task_context "Task" do
 
     output_port("trajectory", "std::vector</base/Trajectory>").
         doc("Spline format.")
+        
+    output_port("sub_trajectory", "std::vector<trajectory_follower::SubTrajectory>").
+        doc("Sub spline, contains positions and orientation")
         
     output_port("states_mpl", "std::vector</motion_planning_libraries/State>").
         doc("List of motion_planning_libraries states")
