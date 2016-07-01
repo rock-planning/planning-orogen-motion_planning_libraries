@@ -27,6 +27,9 @@ task_context "Task" do
         
     property("send_escape_traj_to_traj_port", "bool", false).
         doc("If this parameter is set to true the escape traj will be written to the trajectory port instead of escape_trajectory")
+
+    property("initial_footprint", "double", 0).
+        doc("If greater 0 it defines the initial footprint (OMPL Sherpa) of the system. Otherwise the mean value of the min and max footprint of the config is used.")
         
     operation("generateEscapeTrajectory").
         returns('bool').
