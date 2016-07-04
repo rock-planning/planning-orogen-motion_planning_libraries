@@ -55,7 +55,7 @@ task_context "Task" do
     output_port("trajectory", "std::vector</base/Trajectory>").
         doc("Spline format.")
         
-    output_port("sub_trajectory", "std::vector<trajectory_follower::SubTrajectory>").
+    output_port("sub_trajectory", "std::vector</trajectory_follower::SubTrajectory>").
         doc("Sub spline, contains positions and orientation")
         
     output_port("states_mpl", "std::vector</motion_planning_libraries/State>").

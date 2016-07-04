@@ -191,6 +191,10 @@ void Task::updateHook()
                         mpMotionPlanningLibraries->getTrajectoryInWorld();
                 _trajectory.write(vec_traj);
                 
+                std::vector<trajectory_follower::SubTrajectory> sub_traj = 
+                        mpMotionPlanningLibraries->getSubTrajectoryInWorld();
+                _sub_trajectory.write(sub_traj);     
+                
                 std::vector<struct State> states = mpMotionPlanningLibraries->getStatesInWorld();
                 _states_mpl.write(states); 
                 
