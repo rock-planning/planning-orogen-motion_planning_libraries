@@ -75,6 +75,7 @@ void Task::updateHook()
     
     // Start and goal can only be set if the traversability map is available.
     if(!mpMotionPlanningLibraries->travGridAvailable()) {
+        state(MISSING_TRAV);
         return;
     }
      
