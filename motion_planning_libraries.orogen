@@ -50,6 +50,9 @@ task_context "Task" do
         
     input_port('goal_pose_samples', 'base/samples/RigidBodyState').
         doc("Goal pose in the world, using x and y and yaw. If the start state port is not connected this port will be used.")
+    input_port('goal_pose_rel_samples', 'base/samples/RigidBodyState').
+            doc("Goal pose in the robot frame, using x and y and yaw. If the start state port is not connected this port will be used.")
+
         
     output_port('waypoints', '/std/vector<base::Waypoint>').
         doc "Waypoint list."
