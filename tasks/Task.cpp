@@ -119,6 +119,15 @@ void Task::updateHook()
                 _goal_pose_samples_debug.write(mGoalPose);
             }
         }
+        if(_goal_pose_rel_samples.readNewest(mGoalPose) == RTT::NewData) {
+            Eigen::Affine3d t_rel = mGoalPose.getTransform();
+            Eigen::Affine3d t_cur = mStartPose.getTransform();
+            Eigen::Affine3d t_world = t_cur*t_rel;
+            mGoalPose.setTransform(t_world);
+            if(mpMotionPlanningLibraries->setGoalState(State(mGoalPose))) {
+                _goal_pose_samples_debug.write(mGoalPose);
+            }
+        }
     }
     
     mpMotionPlanningLibraries->allInputsAvailable(err_inputs);
