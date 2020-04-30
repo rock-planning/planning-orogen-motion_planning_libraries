@@ -4,7 +4,6 @@
 
 #include <base-logging/Logging.hpp>
 
-#include <envire/Orocos.hpp>
 #include <motion_planning_libraries/MotionPlanningLibraries.hpp>
 
 
@@ -35,16 +34,17 @@ bool Task::configureHook()
     
     mpMotionPlanningLibraries = boost::shared_ptr<MotionPlanningLibraries>(
             new MotionPlanningLibraries(_config.get()));
+    _world2local.registerUpdateCallback(boost::bind(&Task::world2localCallback, this, _1));
     
     return true;
 }
 
 bool Task::startHook()
 {
-    mEscapeTrajAvailable = false;
-    
     if (! TaskBase::startHook())
         return false;
+
+    mEscapeTrajAvailable = false;
     return true;
 }
 
@@ -58,16 +58,8 @@ void Task::updateHook()
     setTaskState(err_inputs);
     
     // Set traversability map.
-    envire::OrocosEmitter::Ptr binary_event;
-    // Use a loop here because binary_events could contain partial updates
-    bool new_map = false;
-    while(_traversability_map.read(binary_event) == RTT::NewData)
-    {
-        mEnv.applyEvents(*binary_event);   
-        new_map = true;
-    }
-    if(new_map) {
-        mpMotionPlanningLibraries->setTravGrid(&mEnv, _traversability_map_id);
+    if(_traversability_map.read(mTravGridSpatioTemporal, false) == RTT::NewData) {
+        mpMotionPlanningLibraries->setTravGrid(mTravGridSpatioTemporal.getData());
         // Just wait some time for a new goal pose in case both
         // map and new goal have been sent together.
         sleep(1);
@@ -129,7 +121,6 @@ void Task::updateHook()
             }
         }
     }
-    
     mpMotionPlanningLibraries->allInputsAvailable(err_inputs);
     setTaskState(err_inputs);
 
@@ -265,6 +256,13 @@ bool Task::generateEscapeTrajectory() {
     }
     mEscapeTrajAvailable = false;
     return ret;
+}
+
+void Task::world2localCallback(const base::Time& time)
+{
+    Eigen::Affine3d world2local;
+    _world2local.get(time, world2local);
+    mpMotionPlanningLibraries->setWorld2Local(world2local);
 }
 
 void Task::setTaskState(enum MplErrors err) {

@@ -5,7 +5,8 @@
 
 #include "motion_planning_libraries/TaskBase.hpp"
 
-#include <envire/core/Environment.hpp>
+#include <envire_core/items/SpatioTemporal.hpp>
+#include <maps/grid/TraversabilityGrid.hpp>
 
 namespace motion_planning_libraries {
 
@@ -21,9 +22,8 @@ class MotionPlanningLibraries;
  * 
  * \section MPL-Module
  * Within the MPL library documentation you can find an instruction how to 
- * setup the configuration struct. The property  \a traversability_map_id should be set
- * to the id of the traversability map (otherwise the first found traversability map will be used)
- * and \a planning_time_sec defines the maximum time which should be used for planning 
+ * setup the configuration struct.
+ * \a planning_time_sec defines the maximum time which should be used for planning
  * during each call of the updateHook.
  * 
  * The test module can be used to generate test traversability maps. See the test_planning script
@@ -135,7 +135,7 @@ class Task : public TaskBase
 	friend class TaskBase;
     protected:
         boost::shared_ptr<MotionPlanningLibraries> mpMotionPlanningLibraries;
-        envire::Environment mEnv;
+        envire::core::SpatioTemporal<maps::grid::TraversabilityGrid> mTravGridSpatioTemporal;
         base::samples::RigidBodyState mStartPose;
         base::samples::RigidBodyState mGoalPose;
         State mStartState;
@@ -243,6 +243,8 @@ class Task : public TaskBase
         void setTaskState(enum MplErrors err);
         
         std::string getTaskStateName(enum MplErrors err);
+
+        void world2localCallback(const base::Time& time);
 
     };
 }
