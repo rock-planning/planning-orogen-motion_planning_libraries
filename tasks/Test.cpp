@@ -8,7 +8,7 @@
 #include <envire/core/Environment.hpp>
 #include <envire/maps/TraversabilityGrid.hpp>
 #include <envire/operators/SimpleTraversability.hpp>
-#include <orocos/envire/Orocos.hpp>
+#include <envire/Orocos.hpp>
 
 #include <motion_planning_libraries/MotionPlanningLibraries.hpp>
 
