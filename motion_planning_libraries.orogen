@@ -1,11 +1,13 @@
 name "motion_planning_libraries"
 
 using_library "base-logging"
+using_library "maps"
 using_library "envire"
 using_library "motion_planning_libraries"
 
 import_types_from "base"
 import_types_from "envire"	
+import_types_from "envire_maps"
 import_types_from "motion_planning_librariesTypes.hpp"
 import_types_from "motion_planning_libraries/Config.hpp"
 import_types_from "motion_planning_libraries/State.hpp"
@@ -14,9 +16,6 @@ import_types_from "motion_planning_libraries/sbpl/SbplMotionPrimitives.hpp"
 task_context "Task" do
     needs_configuration
 
-    property("traversability_map_id", "std/string", "/traversability").
-        doc("Try to extract this map, otherwise the first trav map will be used.")
-        
     property("config", "motion_planning_libraries/Config").
         doc("Motion planning configuration file.")
     
@@ -36,7 +35,7 @@ task_context "Task" do
         returns('bool').
         doc("Uses the last trajectory to create and send an escape trajectory (see port escape_trajectory)")
 
-    input_port('traversability_map', ro_ptr('std/vector</envire/BinaryEvent>')).
+    input_port('traversability_map', spatio_temporal('/maps/grid/TraversabilityGrid')).
         doc("Traversability map. Has to be received once before planning can be executed.")
 
     input_port('start_state', '/motion_planning_libraries/State').
@@ -50,6 +49,7 @@ task_context "Task" do
         
     input_port('goal_pose_samples', 'base/samples/RigidBodyState').
         doc("Goal pose in the world, using x and y and yaw. If the start state port is not connected this port will be used.")
+
     input_port('goal_pose_rel_samples', 'base/samples/RigidBodyState').
             doc("Goal pose in the robot frame, using x and y and yaw. If the start state port is not connected this port will be used.")
 
@@ -97,6 +97,11 @@ task_context "Task" do
             :GOAL_COULD_ONLY_BE_REACHED_IMPRECISELY,
             :UNDEFINED_ERROR
         
+    transformer do
+        transform "world", "local"
+        max_latency 0.5
+    end
+
     #port_driven 'traversability_map', 'goal_pose_samples'
     periodic 1.0
 end

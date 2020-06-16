@@ -10,4 +10,5 @@
   <depend package="base/logging" />
   <depend package="planning/motion_planning_libraries" />
   <depend package="slam/orogen/envire" />
+  <depend package="envire/orogen/envire_maps" />
 </package>
